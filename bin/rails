@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby.exe
+# encoding: utf-8
 begin
   load File.expand_path("../spring", __FILE__)
 rescue LoadError

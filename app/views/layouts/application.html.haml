@@ -1,8 +1,10 @@
--# coding: utf-8
+-# encoding: utf-8
 
 %head
-	%script{:type => "text/javascript", :src => "/javascripts/comp-pool.js"}
-	%link{:type => "text/css", :rel => "stylesheet", :href => "/stylesheets/comp-pool.css"}
+	= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+	= javascript_include_tag 'application', 'data-turbolinks-track' => true
+	
+	%title CompPool
 
 %body
 	#header

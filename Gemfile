@@ -1,3 +1,4 @@
+# encoding: utf-8
 source 'https://rubygems.org'
 
 
@@ -38,3 +39,8 @@ gem 'spring',        group: :development
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin]
+  
+# Because ERB sucks, and HAML is love
+gem 'haml'
+
+# 
