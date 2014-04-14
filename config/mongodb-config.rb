@@ -1,5 +1,5 @@
 
-default_url = "mongodb://comp-pool-client:ropass@localhost:27017/comp-pool"
+default_url = "mongodb://localhost:27017/comp-pool"
 
 set :mongodb_uri, {
   :production   => default_url,
