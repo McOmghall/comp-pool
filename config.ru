@@ -18,7 +18,7 @@ configure do
       :format => :html5
   }
   
-  # MongoMapper defaults
+  # MongoMapper defaults, config from ./config/mongodb-config.rb
   MongoMapper.setup({
     :production   => {:uri => settings.mongodb_uri[:production]},
     :development  => {:uri => settings.mongodb_uri[:development]},
