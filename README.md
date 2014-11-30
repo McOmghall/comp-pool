@@ -6,6 +6,6 @@ This node.js REST service allows distribution of computing jobs (in javascript) 
 It has nothing to do with pool cleaning appliances. Yet.
 
 
-== History ==
+=== History ===
 
 It was firstly planned to be a Sinatra-based service, but the node.js ability to allow users to execute code server side made us to finally choose it.
