@@ -39,7 +39,7 @@ Gets a variable through a variable scheduler, to be chained with the next call
     GET /job/:id/variable/:id
 Gets a variable by id
 
-### Job Result ###
+### Job Results ###
 A `result` object is an arbitrary javascript object associated to a `variable` the result of the computation over this `variable` object.
 
     `POST /job/:id/variable/:id/result`
