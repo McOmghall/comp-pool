@@ -11,10 +11,14 @@ We use a volunteer pull distributed computation model over a REST API. That mean
 
 ### Jobs ###
 A `job` object includes:
-* a javascript function named `execute_function`
-* an optional `validate_result` function to be executed server-side, by default every result is accepted, otherwise they are validated by this function
-* a `variable_scheduler` function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
-* associated `metadata` such as a `description` localized text and job `owner`in the form of a `metadata[description][locale]` and `metadata[owner]`. 
+* A javascript function named `execute_function`
+* An optional `validate_result` function to be executed server-side, by default every result is accepted, otherwise they are validated by this function. Can also include post-processing code.
+* A `variable_scheduler` function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
+* Associated `metadata`, all optional
+  * `name`: `metadata.name`
+  * `description`: `metadata.description[locale]` and `metadata.short_description[locale]`
+  * `owner`: `metadata.owner`
+  * Some sort of ranking, such as job supporters etc.
 
 Jobs can be served directly using external REST ids or through a scheduler that organizes them for efficient processing in clients.
 
@@ -45,6 +49,12 @@ A `result` object is an arbitrary javascript object associated to a `variable` t
     `POST /job/:id/variable/:id/result`
 Adds a new result associated to a job and job's variable
 
+Example Job Schedulers
+----------------------
+
+* Random jobs
+* Send jobs filtered by user status, for example, a user can choose to support orgs with his computer, so he chooses to only execute jobs from this chosen orgs.
+* Send short jobs first, according to computed job metadata
 
 #### History ####
 
