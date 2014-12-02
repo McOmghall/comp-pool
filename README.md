@@ -7,13 +7,20 @@ It has nothing to do with pool cleaning appliances. Yet.
 
 API Design
 -------------
-We use a volunteer pull distributed computation model over a REST API. That means clients can pull (`GET`) `jobs`, job input `variables` and `POST` `results` back to the API. We offer the following resources:
+We use a volunteer pull distributed computation model over a REST API. That means clients can pull (`GET`) `jobs`, job input `variables` and `POST` `results` back to the API. Every resource includes a `self ref` and other semantic `refs` for `HATEOAS` compliance. We offer the following resources:
+
+## Resources ##
 
 ### Jobs ###
 A `job` object includes:
-* A javascript function named `execute_function(variable, context)`
-* An optional `validate_result(variable, result, context)` function to be executed server-side, by default every result is accepted, otherwise they are validated by this function. Can also include post-processing code.
-* A `variable_scheduler(context)` function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
+* A javascript function named `execute_function(variable, context)`, is expected to return the `context`  object with any possible modifications and a `result` field. Some jobs could require client-side state, therefore this object is provided.
+* An optional `validate_result(variable, result, context)` function to be executed server-side. 
+  * By default every result is accepted, otherwise they are validated by this function. 
+  * Can also include post-processing code.
+  * It's not usually served to the client, as it's not required. If we finally implement job execution federation this is going to be external.
+* An optional `variable_scheduler(context)` server-side function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
+  * By default a variable is served randomly 
+  * It's not usually served to the client, as it's not required. If we finally implement job execution federation this is going to be external.
 * Associated `metadata`, all optional
   * `name`: `metadata.name`
   * `description`: `metadata.description[locale]` and `metadata.short_description[locale]`
@@ -22,32 +29,98 @@ A `job` object includes:
 
 Jobs can be served directly using external REST ids or through a scheduler that organizes them for efficient processing in clients.
 
-    POST /job
+##### Job resources API #####
+
+    POST /jobs
 To send a new job object, expected to be compiled by [Google Caja](https://developers.google.com/caja/) to enhance client's security as suggested [here](http://stackoverflow.com/questions/23758472/closing-access-to-global-variables-javascript). One of the objectives is job posting to be as automated as possible while being secure.
 
-    GET /job/:id
-Gets a job by id
+    GET /jobs{/:id}
+Gets a job by id. If there's no `:id` specified it uses a job determined by the default scheduler (defined by config).
 
-    GET /job/scheduler/:scheduler_id`
-Uses a scheduler to retrieve a job, internal algorithms are abstracted through this interface
+    GET /jobs/scheduled{/:scheduler_id}`
+Sometimes you might want to define different schedulers, this selects a job using a defined scheduler. If no `:scheduler_id` is specified it uses the default one.
 
 ### Job Variables ###
 An input `variable` object is an arbitrary javascript object associated to a `job` and is passed to the `execute_function` on each run.
 
-    POST /job/:id/variable
+##### Variable resources API #####
+
+    POST /jobs/:id/variables
 Posts a new variable to be served to clients. Gets validated by the job's `validate_result` function if this function exists, otherwise is accepted by default.
 
-    GET /job/:id/variable
+    GET /jobs/:id/variables
 Gets a variable through a variable scheduler, to be chained with the next call
 
-    GET /job/:id/variable/:id
+    GET /jobs/:id/variables/:id
 Gets a variable by id
 
 ### Job Results ###
 A `result` object is an arbitrary javascript object associated to a `variable` the result of the computation over this `variable` object.
 
-    `POST /job/:id/variable/:id/result`
+##### Result resources API #####
+
+    POST /jobs/:id/variables/:id/result
 Adds a new result associated to a job and job's variable
+
+## Example interaction ##
+
+[CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) compliance 
+OPTIONS /
+
+    200 OK
+    Access-Control-Allow-Origin: *
+GET /
+
+    200 OK
+    {
+      "job_scheduler_url": "/jobs/scheduler"
+    }
+GET /jobs/scheduler
+
+    200 OK
+    {
+      "_links" : {
+        "self" : "/jobs/3141592",
+        "get_variables" : "/jobs/3141592/variables
+      },
+      "metadata" : {
+        "name" : "Example job",
+        "owner" : "McOmghall",
+        "description" : {
+          "en" : "this is a job"
+          "es" : "esto es un job"
+        }
+      }
+      "execute_function" : "function (variable, context) {...}"
+    }
+ 
+ GET /jobs/314159265359/variables
+
+    200 OK
+    {
+      "_links" : {
+        "self" : "/jobs/3141592/variables/test_limit_case",
+        "post_result" : "/jobs/3141592/variables/test_limit_case/results",
+        "get_job" : "/jobs/3141592
+      },
+      "data_field_one" : {
+        "foo" : 1,
+        "bar" : {
+          "baz" : "zt"
+        }
+      }
+      "data_field_two" : {
+        "foobar" : "baz"
+      }
+    }
+
+At this point `execute_function` from the `job resource` is executed with this object as the `variable` argument.
+Note that the `_links` part of the resource object should not be passed to the function.
+
+Finally, POST /jobs/3141592/variables/test_limit_case/results context.result
+
+    201 Created
+    Location: "/jobs/3141592/variables/test_limit_case/results/20141202090909"
 
 Example Job Schedulers
 ----------------------
@@ -55,6 +128,11 @@ Example Job Schedulers
 * Random jobs
 * Send jobs filtered by user status, for example, a user can choose to support orgs with his computer, so he chooses to only execute jobs from this chosen orgs.
 * Send short jobs first, according to computed job metadata
+
+#### Plans ####
+
+* Use it to explore multithreading in javascript and multithreaded designs
+* WebCL support
 
 #### History ####
 
