@@ -25,22 +25,26 @@ A `job` object includes:
 
 Jobs can be served directly using external REST ids or through a scheduler that organizes them for efficient processing in clients.
 
-    POST /job
+#### API Calls ####
+
+    POST /jobs
 To send a new job object, expected to be compiled by [Google Caja](https://developers.google.com/caja/) to enhance client's security as suggested [here](http://stackoverflow.com/questions/23758472/closing-access-to-global-variables-javascript). One of the objectives is job posting to be as automated as possible while being secure.
 
-    GET /job/:id
+    GET /jobs/:id
 Gets a job by id
 
-    GET /job/scheduler/:scheduler_id`
+    GET /jobs/schedulers/:scheduler_id`
 Uses a scheduler to retrieve a job, internal algorithms are abstracted through this interface
 
 ### Job Variables ###
 An input `variable` object is an arbitrary javascript object associated to a `job` and is passed to the `execute_function` on each run.
 
-    POST /job/:id/variable
+#### API Calls ####
+
+    POST /jobs/:id/variable
 Posts a new variable to be served to clients. Gets validated by the job's `validate_result` function if this function exists, otherwise is accepted by default.
 
-    GET /job/:id/variable
+    GET /jobs/:id/variable
 Gets a variable through a variable scheduler, to be chained with the next call
 
     GET /job/:id/variable/:id
@@ -48,6 +52,7 @@ Gets a variable by id
 
 ### Job Results ###
 A `result` object is an arbitrary javascript object associated to a `variable` the result of the computation over this `variable` object.
+
 
     `POST /job/:id/variable/:id/result`
 Adds a new result associated to a job and job's variable
