@@ -13,7 +13,7 @@ We use a volunteer pull distributed computation model over a REST API. That mean
 
 ### Jobs ###
 A `job` object includes:
-* A javascript function named `execute_function(variable, context)`
+* A javascript function named `execute_function(variable, context)`, is expected to return the `context`  object with any possible modifications and a `result` field. Some jobs could require client-side state, therefore this object is provided.
 * An optional `validate_result(variable, result, context)` function to be executed server-side. 
   * By default every result is accepted, otherwise they are validated by this function. 
   * Can also include post-processing code.
@@ -35,46 +35,51 @@ Jobs can be served directly using external REST ids or through a scheduler that 
 To send a new job object, expected to be compiled by [Google Caja](https://developers.google.com/caja/) to enhance client's security as suggested [here](http://stackoverflow.com/questions/23758472/closing-access-to-global-variables-javascript). One of the objectives is job posting to be as automated as possible while being secure.
 
     GET /jobs{/:id}
-Gets a job by id. If there's no `:id` specified it uses a job determined by a scheduler one.
+Gets a job by id. If there's no `:id` specified it uses a job determined by the default scheduler (defined by config).
 
     GET /jobs/scheduled{/:scheduler_id}`
-Sometimes you might want to define different schedulers, this selects a job using an internal scheduler. If no `:scheduler_id` is specified it uses a default one.
+Sometimes you might want to define different schedulers, this selects a job using a defined scheduler. If no `:scheduler_id` is specified it uses the default one.
 
 ### Job Variables ###
 An input `variable` object is an arbitrary javascript object associated to a `job` and is passed to the `execute_function` on each run.
 
 #### API Calls ####
 
-    POST /jobs/:id/variable
+    POST /jobs/:id/variables
 Posts a new variable to be served to clients. Gets validated by the job's `validate_result` function if this function exists, otherwise is accepted by default.
 
-    GET /jobs/:id/variable
+    GET /jobs/:id/variables
 Gets a variable through a variable scheduler, to be chained with the next call
 
-    GET /jobs/:id/variable/:id
+    GET /jobs/:id/variables/:id
 Gets a variable by id
 
 ### Job Results ###
 A `result` object is an arbitrary javascript object associated to a `variable` the result of the computation over this `variable` object.
 
-    POST /jobs/:id/variable/:id/result
+    POST /jobs/:id/variables/:id/result
 Adds a new result associated to a job and job's variable
 
 ## Example interaction ##
 
-OPTIONS /        *CORS compliance http://en.wikipedia.org/wiki/Cross-origin_resource_sharing*
+[CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) compliance 
+OPTIONS /
 
+    200 OK
     Access-Control-Allow-Origin: *
 GET /
 
+    200 OK
     {
       "job_scheduler_url": "/jobs/scheduler"
     }
 GET /jobs/scheduler
 
+    200 OK
     {
       "_links" : {
-        "self" : "/jobs/314159265359"
+        "self" : "/jobs/3141592",
+        "get_variables" : "/jobs/3141592/variables
       },
       "metadata" : {
         "name" : "Example job",
@@ -86,8 +91,34 @@ GET /jobs/scheduler
       }
       "execute_function" : "function (variable, context) {...}"
     }
-        
-      
+ 
+ GET /jobs/314159265359/variables
+
+    200 OK
+    {
+      "_links" : {
+        "self" : "/jobs/3141592/variables/test_limit_case",
+        "post_result" : "/jobs/3141592/variables/test_limit_case/results",
+        "get_job" : "/jobs/3141592
+      },
+      "data_field_one" : {
+        "foo" : 1,
+        "bar" : {
+          "baz" : "zt"
+        }
+      }
+      "data_field_two" : {
+        "foobar" : "baz"
+      }
+    }
+
+At this point `execute_function` from the `job resource` is executed with this object as the `variable` argument.
+Note that the `_links` part of the resource object should not be passed to the function.
+
+Finally, POST /jobs/3141592/variables/test_limit_case/results context.result
+
+    201 Created
+    Location: "/jobs/3141592/variables/test_limit_case/results/20141202090909"
 
 Example Job Schedulers
 ----------------------
@@ -95,6 +126,11 @@ Example Job Schedulers
 * Random jobs
 * Send jobs filtered by user status, for example, a user can choose to support orgs with his computer, so he chooses to only execute jobs from this chosen orgs.
 * Send short jobs first, according to computed job metadata
+
+#### Plans ####
+
+* Use it to explore multithreading in javascript and multithreaded designs
+* WebCL support
 
 #### History ####
 
