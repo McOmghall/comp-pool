@@ -64,6 +64,8 @@ Adds a new result associated to a job and job's variable
 
 ## Example interaction ##
 
+We describe an interaction to `GET` a job, a variable for that job and `POST` the result back.
+
 [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) compliance 
 OPTIONS /
 
@@ -94,7 +96,7 @@ GET /jobs/scheduler
       "execute_function" : "function (variable, context) {...}"
     }
  
- GET /jobs/314159265359/variables
+ GET /jobs/3141592/variables
 
     200 OK
     {
