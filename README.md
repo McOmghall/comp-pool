@@ -12,8 +12,11 @@ We use a volunteer pull distributed computation model over a REST API. That mean
 ### Jobs ###
 A `job` object includes:
 * A javascript function named `execute_function(variable, context)`
-* An optional `validate_result(variable, result, context)` function to be executed server-side, by default every result is accepted, otherwise they are validated by this function. Can also include post-processing code.
-* A `variable_scheduler(context)` function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
+* An optional `validate_result(variable, result, context)` function to be executed server-side. 
+  * By default every result is accepted, otherwise they are validated by this function. 
+  * Can also include post-processing code.
+* An optional `variable_scheduler(context)` function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
+  * By default a variable is served randomly 
 * Associated `metadata`, all optional
   * `name`: `metadata.name`
   * `description`: `metadata.description[locale]` and `metadata.short_description[locale]`
