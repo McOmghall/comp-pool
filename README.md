@@ -47,14 +47,14 @@ Posts a new variable to be served to clients. Gets validated by the job's `valid
     GET /jobs/:id/variable
 Gets a variable through a variable scheduler, to be chained with the next call
 
-    GET /job/:id/variable/:id
+    GET /jobs/:id/variable/:id
 Gets a variable by id
 
 ### Job Results ###
 A `result` object is an arbitrary javascript object associated to a `variable` the result of the computation over this `variable` object.
 
 
-    `POST /job/:id/variable/:id/result`
+    `POST /jobs/:id/variable/:id/result`
 Adds a new result associated to a job and job's variable
 
 Example Job Schedulers
