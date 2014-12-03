@@ -3,20 +3,16 @@
   "version": "0.1.0",
   "description": "Rest service for computation jobs",
   "author": "Pedro Montoto García <pmgberm@gmail.com>",
-
   "scripts": {
-    "start": "node index.js"    
+    "start": "node index.js"
   },
-  
   "repository": {
     "type": "git",
     "url": "https://github.com/McOmghall/comp-pool"
   },
-  
   "bugs": {
     "url": "https://github.com/McOmghall/comp-pool"
   },
-  
   "keywords": [
     "distributed",
     "collaborative",
@@ -24,12 +20,9 @@
     "mongodb",
     "pull-model"
   ],
-  
   "dependencies": {
-    "express" : "4.0.0"
+    "restify": "^2.8.3"
   },
-  
   "private": false,
-  
   "license": "Apache 2.0"
 }
