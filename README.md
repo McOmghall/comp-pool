@@ -13,19 +13,19 @@ We use a volunteer pull distributed computation model over a REST API. That mean
 
 ### Jobs ###
 A `job` object includes:
-* A javascript function named `execute_function(variable, context)`, is expected to return the `context`  object with any possible modifications and a `result` field. Some jobs could require client-side state, therefore this object is provided.
-* An optional `validate_result(variable, result, context)` function to be executed server-side. 
+* `function execute_function(variable, context)`, is expected to return the `context`  object with any possible modifications and a `result` field. Some jobs could require client-side state, therefore this object is provided.
+* `function validate_result(variable, result, context)` (optional) to be executed server-side. 
   * By default every result is accepted, otherwise they are validated by this function. 
   * Can also include post-processing code.
   * It's not usually served to the client, as it's not required. If we finally implement job execution federation this is going to be external.
-* An optional `variable_scheduler(context)` server-side function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
+* `function variable_scheduler(context)` (optional) server-side function that selects `variable objects` (see below) from the `job`'s collection to serve to clients, returning a `variable id`
   * By default a variable is served randomly 
   * It's not usually served to the client, as it's not required. If we finally implement job execution federation this is going to be external.
-* Associated `metadata`, all optional
-  * `name`: `metadata.name`
-  * `description`: `metadata.description[locale]` and `metadata.short_description[locale]`
-  * `owner`: `metadata.owner`
-  * Some sort of ranking, such as job supporters etc.
+* `metadata` (optional)
+  * `name` (optional) : `metadata.name`
+  * `description` (optional) : `metadata.description[locale]` and `metadata.short_description[locale]`
+  * `owner` (optional) : `metadata.owner`
+  * Other fields can be described, and are optional and arbitrary.
 
 Jobs can be served directly using external REST ids or through a scheduler that organizes them for efficient processing in clients.
 
