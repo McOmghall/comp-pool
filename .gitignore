@@ -1,4 +1,6 @@
 /Gemfile.lock
 node_modules/
+.project
+.tern-project
 *.swp
 *.log
