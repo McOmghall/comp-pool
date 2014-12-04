@@ -62,6 +62,18 @@ A `result` object is an arbitrary javascript object associated to a `variable` t
     POST /jobs/:id/variables/:id/result
 Adds a new result associated to a job and job's variable
 
+### Job Flow ###
+A `flow` is a javascript object that describes dependencies of computation over `jobs`, effectively describing a parallel schema to a job execution set as a `Tree`. 
+
+The structure of this class of objects:
+* `jobs` array of
+  * `job` url
+  * `variable` url (optional)
+* `dependent` inner flow object
+
+The business logic for this kind of objects is that every `job` gets executed with the specified `variable` and for every `job array` the results of these jobs are merged in an object that gets passed to the parent object. It proceeds recursively to the root of the object.
+
+
 ## Example interaction ##
 
 We describe an interaction to `GET` a job, a variable for that job and `POST` the result back.
