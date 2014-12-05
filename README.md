@@ -67,8 +67,10 @@ A `flow` is a javascript object that describes dependencies of computation over 
 
 The structure of this class of objects:
 * `jobs` array of
-  * `job` url
-  * `variable` url (optional)
+  * `job` : url
+  * `variable` : url (optional)
+  * `if` : `function(variable, context)` (optional) returns true if this job is ok for execution on this context
+  * `while` : `function(variable, context)` (optional) repeats the execution of the job if it returns true
 * `dependent` inner flow object
 
 The business logic for this kind of objects is that every `job` gets executed with the specified `variable` and for every `job array` the results of these jobs are merged in an object that gets passed to the parent object. It proceeds recursively to the root of the object.
