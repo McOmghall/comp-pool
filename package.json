@@ -21,7 +21,9 @@
     "pull-model"
   ],
   "dependencies": {
-    "restify": "^2.8.3"
+    "halacious": "^3.0.0",
+    "hapi": "^8.0.0",
+    "mschema": "^0.5.5"
   },
   "private": false,
   "license": "Apache 2.0"
