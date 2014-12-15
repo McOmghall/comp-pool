@@ -4,7 +4,7 @@
   "description": "Rest service for computation jobs",
   "author": "Pedro Montoto García <pmgberm@gmail.com>",
   "scripts": {
-    "start": "node index.js"
+    "start": "node --harmony_generators --harmony_iteration index.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,8 @@
   "dependencies": {
     "halacious": "^3.0.0",
     "hapi": "^8.0.0",
-    "mschema": "^0.5.5"
+    "mschema": "^0.5.5",
+    "valid-url": "^1.0.9"
   },
   "private": false,
   "license": "Apache 2.0"
