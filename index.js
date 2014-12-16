@@ -14,10 +14,17 @@ var load_resources = function(resource_hash, hapi_instance) {
   for(resource_index in resources) {
     var resource = resources[resource_index];
     console.info('Loading resource: %s', resource);
+    
+    if (resource_hash[resource].routes == null) {
+      throw "Routes not found: This is not a valid resource.";
+    } else if (resource_hash[resource].routes.length == 0) {
+      console.warn('        resource %s no routes', resource);
+    }
 
-    var routes = Object.getOwnPropertyNames(resource_hash[resource].routes)
+    var routes = resource_hash[resource].routes;
     for(route_index in routes) {
       var route = routes[route_index];
+      console.info('Loading resource %s route: %s', resource, route);
       hapi_instance.route(route);
     }
   }
@@ -34,10 +41,10 @@ server.register(halcs, function(err) {
 });
 
 load_resources({
-  flows :     require('./resources/flow/resource.js')
-, jobs :      require('./resources/job/resource.js')
-, variables : require('./resources/variable/resource.js')
-, results :   require('./resources/result/resource.js')
+  flows :     require('./resources/flows.controller.js')
+, jobs :      require('./resources/jobs.controller.js')
+, variables : require('./resources/variables.controller.js')
+, results :   require('./resources/results.controller.js')
 }, server);
 
 server.route({
