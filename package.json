@@ -16,15 +16,15 @@
   "keywords": [
     "distributed",
     "collaborative",
-    "cloud",
-    "mongodb",
+    "mapreduce?",
+    "distributed-computation",
     "pull-model"
   ],
   "dependencies": {
     "halacious": "^3.0.0",
     "hapi": "^8.0.0",
     "mschema": "^0.5.5",
-    "valid-url": "^1.0.9"
+    "underscore": "^1.7.0"
   },
   "private": false,
   "license": "Apache 2.0"
