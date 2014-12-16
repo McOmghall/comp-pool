@@ -24,7 +24,8 @@ var load_resources = function(resource_hash, hapi_instance) {
     var routes = resource_hash[resource].routes;
     for(route_index in routes) {
       var route = routes[route_index];
-      console.info('Loading resource %s route: %s', resource, route);
+      route.path = '/' + resource + route.path;
+      console.info('Loading resource %s route: %s', resource, JSON.stringify(route));
       hapi_instance.route(route);
     }
   }
@@ -40,18 +41,21 @@ server.register(halcs, function(err) {
     console.info("Registered halacious resource manager");
 });
 
-load_resources({
+resources_to_load = {
   flows :     require('./resources/flows.controller.js')
 , jobs :      require('./resources/jobs.controller.js')
 , variables : require('./resources/variables.controller.js')
 , results :   require('./resources/results.controller.js')
-}, server);
+};
+
+load_resources(resources_to_load, server);
 
 server.route({
-    method: 'get',
-    path: '/hello/{name}',
+    method: 'GET',
+    path: '/',
+    config : {cors : true},
     handler: function(req, reply) {
-        reply({ message: 'Hello, '+req.params.name });
+        reply(resources_to_load);
     }
 });
 
