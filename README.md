@@ -5,6 +5,8 @@ This node.js REST service allows distribution of computing jobs (in javascript) 
 
 It has nothing to do with pool cleaning appliances. Yet.
 
+    Api Stability: 1 - Experimental
+
 API Design
 -------------
 We use a volunteer pull distributed computation model over a REST API. That means clients can pull (`GET`) `jobs`, job input `variables` and `POST` `results` back to the API. Every resource includes a `self ref` and other semantic `refs` for `HATEOAS` compliance. We offer the following resources:
@@ -13,6 +15,7 @@ We use a volunteer pull distributed computation model over a REST API. That mean
 
 ### Jobs ###
 A `job` object includes:
+* `name` : A string that serves both as external key and designator. The key is obtained from the name using `node-urlify`.
 * `function execute_function(variable, context)`, is expected to return the `context`  object with any possible modifications and a `result` field. Some jobs could require client-side state, therefore this object is provided.
 * `function validate_result(variable, result, context)` (optional) to be executed server-side. 
   * By default every result is accepted, otherwise they are validated by this function. 
@@ -22,7 +25,6 @@ A `job` object includes:
   * By default a variable is served randomly 
   * It's not usually served to the client, as it's not required. If we finally implement job execution federation this is going to be external.
 * `metadata` (optional)
-  * `name` (optional) : `metadata.name`
   * `description` (optional) : `metadata.description[locale]` and `metadata.short_description[locale]`
   * `owner` (optional) : `metadata.owner`
   * Other fields can be described, and are optional and arbitrary.
