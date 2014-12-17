@@ -5,6 +5,8 @@ This node.js REST service allows distribution of computing jobs (in javascript) 
 
 It has nothing to do with pool cleaning appliances. Yet.
 
+    Api Stability: 1 - Experimental
+
 API Design
 -------------
 We use a volunteer pull distributed computation model over a REST API. That means clients can pull (`GET`) `jobs`, job input `variables` and `POST` `results` back to the API. Every resource includes a `self ref` and other semantic `refs` for `HATEOAS` compliance. We offer the following resources:
