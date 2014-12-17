@@ -18,7 +18,7 @@ server.register(halcs, function(err) {
 
 server.route(resrc({
   name : 'flow'
-, controller : require('./resources/flows.controller.js')
+, controller : require('./resources/flows.controller.js').controller
 }));
 
 server.route(resrc({
@@ -40,7 +40,7 @@ server.route({
   path: '/',
   config : {cors : true},
   handler: function(req, reply) {
-    reply(root_resources);
+    reply(JSON.stringify(server.table()));
   }
 });
 
