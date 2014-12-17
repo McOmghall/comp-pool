@@ -3,35 +3,10 @@ var packInf = require('./package.json')
   , port    = process.env.PORT || 3000
   , env     = process.env.NODE_ENV || 'development'
   , hapi    = require('hapi')
+  , resrc   = require('hapi-resourceful-routes')
   , halcs   = require('halacious');
 process.env.NODE_ENV = env;
 
-// Load resource definition and handlers
-var load_resources = function(resource_hash, hapi_instance) {
-  var resources = Object.getOwnPropertyNames(resource_hash);
-  console.info('Loading resources %s', resources);
-
-  for(resource_index in resources) {
-    var resource = resources[resource_index];
-    console.info('Loading resource: %s', resource);
-    
-    if (resource_hash[resource].routes == null) {
-      throw "Routes not found: This is not a valid resource.";
-    } else if (resource_hash[resource].routes.length == 0) {
-      console.warn('        resource %s no routes', resource);
-    }
-
-    var routes = resource_hash[resource].routes;
-    for(route_index in routes) {
-      var route = routes[route_index];
-      route.path = '/' + resource + route.path;
-      console.info('Loading resource %s route: %s', resource, JSON.stringify(route));
-      hapi_instance.route(route);
-    }
-  }
-
-  console.info('[SUCCESS] Loaded resources %s', resources);
-};
 
 var server = new hapi.Server();
 server.connection({ port : port });
@@ -41,27 +16,38 @@ server.register(halcs, function(err) {
     console.info("Registered halacious resource manager");
 });
 
-resources_to_load = {
-  flows :     require('./resources/flows.controller.js')
-, jobs :      require('./resources/jobs.controller.js')
-, variables : require('./resources/variables.controller.js')
-, results :   require('./resources/results.controller.js')
-};
+server.route(resrc({
+  name : 'flow'
+, controller : require('./resources/flows.controller.js')
+}));
 
-load_resources(resources_to_load, server);
+server.route(resrc({
+  name : 'job'
+, controller : require('./resources/jobs.controller.js').controller
+, sub : {
+    name : 'variable'
+  , controller : require('./resources/variables.controller.js').controller
+  , sub : {
+      name : 'result'
+    , controller : require('./resources/results.controller.js').controller
+    }
+  }
+}));
+
 
 server.route({
-    method: 'GET',
-    path: '/',
-    config : {cors : true},
-    handler: function(req, reply) {
-        reply(resources_to_load);
-    }
+  method: 'GET',
+  path: '/',
+  config : {cors : true},
+  handler: function(req, reply) {
+    reply(root_resources);
+  }
 });
 
 server.start(function(err) {
     if (err) return console.error(err);
     console.info('[SUCCESS] %s:%s running %s %s environment', host, port, server.info.uri, process.env.NODE_ENV);
+    console.info('[SUCCESS] registered the following routes: %s', JSON.stringify(server.table(), true));
 });
 
 

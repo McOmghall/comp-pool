@@ -1,27 +1,11 @@
-module.exports.routes = [
-  {
-    path : '/'
-  , method : 'GET'
-  , config : {
-      cors : true
-    , plugins : {
-        hal : {
-          links : {
-            'scheduler' : './scheduled/'
-          , 'jobs' : {
-              href : './:job_id/'
-            , templated : true
-            }
-          }
-        }
-      }
-    }
-  , handler : function (request, reply) {
-      reply({message : "Welcome"});
-    }
+
+
+module.exports.controller = {
+  index : function (request, response) {
+    response({message : "you had one job"})
+  },
+  create : function (request, response) {
+	    response({message : "you now have two jobs"})
   }
-
-
-
-];
+};
 

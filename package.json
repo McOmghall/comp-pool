@@ -23,6 +23,7 @@
   "dependencies": {
     "halacious": "^3.0.0",
     "hapi": "^8.0.0",
+    "hapi-resourceful-routes": "0.0.6",
     "mschema": "^0.5.5",
     "underscore": "^1.7.0"
   },
