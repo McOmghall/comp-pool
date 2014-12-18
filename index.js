@@ -22,6 +22,7 @@ server.route({
   path: '/',
   config : {cors : true},
   handler: function(req, reply) {
+	  reply("HEY");
   }
 });
 

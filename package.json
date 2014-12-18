@@ -25,6 +25,7 @@
     "hapi": "^8.0.0",
     "hapi-resourceful-routes": "0.0.6",
     "mschema": "^0.5.5",
+    "node-persist": "0.0.2",
     "underscore": "^1.7.0"
   },
   "private": false,
