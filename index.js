@@ -15,16 +15,20 @@ server.register(halcs, function(err) {
 });
 
 
-server.route(require('./resourcer').start());
+var resourcer = require('./resourcer');
+
+server.route(resourcer.start());
 
 server.route({
   method: 'GET',
   path: '/',
   config : {cors : true},
   handler: function(req, reply) {
-	  reply("HEY");
+    reply(JSON.stringify(resourcer.getResourceInfo()));
   }
 });
+
+console.info('Registered resources %s', JSON.stringify(resourcer.getResourceInfo()));
 
 server.start(function(err) {
     if (err) return console.error(err);

@@ -1,6 +1,12 @@
 var fs    = require('fs')
 , resrc   = require('hapi-resourceful-routes');
 
+// Logging stopper
+var console = {
+  info : function () {}
+};
+
+// Utility function to add an object to another given it's not null, or empty if specified
 var appendSafe = function(object, key, append, empty_objects) {
   if (append) {
     if(!empty_objects && typeof append === 'object' && Object.keys(append).length == 0) {
@@ -12,6 +18,9 @@ var appendSafe = function(object, key, append, empty_objects) {
   return object;
 };
 
+var resource_list = {};
+
+// Used inside 'getAllControllers' to walk over the tree of resources
 var getAllControllersInner = function(root_name, dir) {
   var controller = {};
   var sub        = {};
@@ -26,13 +35,16 @@ var getAllControllersInner = function(root_name, dir) {
       sub        = getAllControllersInner(file, pathToRoot);
     } else if (file == 'controller.js') {
       controller = require(pathToRoot).controller;
+      var resource_to_append = resource_list[root_name] || {}
+      resource_to_append = appendSafe(resource_to_append, 'controller', dir);
+      resource_list[root_name] = resource_to_append;
     }
   });
 
   var rval = {};
-  rval = appendSafe(rval, 'name', root_name, false);
+  rval = appendSafe(rval, 'name', root_name);
   rval = appendSafe(rval, 'controller', controller, true);
-  rval = appendSafe(rval, 'sub', sub, false);
+  rval = appendSafe(rval, 'sub', sub);
 
   console.info("Adding new route with %s", JSON.stringify(rval));
  
@@ -68,10 +80,32 @@ var options_default = {
   resource_root : "./resources"
 };
 
-module.exports = {
-  options : options_default,
+var resourcer = function resourcer() {
+  
+  this.options = options_default;
 
-  start : function () {
+  this.start = function () {
     return getAllControllers(this.options.resource_root);
-  }
+  };
+
+  this.getResourceInfo = function () {
+    return resource_list;
+  };
 };
+
+/**
+ * Singleton handler
+ */
+resourcer.instance = null;
+
+resourcer.getInstance = function () {
+  if (this.instance == null) {
+    this.instance = new resourcer();
+  }
+  return this.instance;
+};
+
+module.exports = resourcer.getInstance();
+
+
+
