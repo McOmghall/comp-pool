@@ -34,7 +34,7 @@ Jobs can be served directly using external REST ids or through a scheduler that 
 ##### Job resources API #####
 
     POST /jobs
-To send a new job object, expected to be compiled by [Google Caja](https://developers.google.com/caja/) to enhance client's security as suggested [here](http://stackoverflow.com/questions/23758472/closing-access-to-global-variables-javascript). One of the objectives is job posting to be as automated as possible while being secure.
+To send a new job object, expected to be compiled by [Google Caja](https://developers.google.com/caja/) to enhance client's security as suggested [here](http://stackoverflow.com/questions/23758472/closing-access-to-global-variables-javascript). One of the objectives is job posting to be as automated as possible while being secure. 
 
     GET /jobs{/:id}
 Gets a job by id. If there's no `:id` specified it uses a job determined by the default scheduler (defined by config).
@@ -54,7 +54,7 @@ Posts a new variable to be served to clients. Gets validated by the job's `valid
 Gets a variable through a variable scheduler, to be chained with the next call
 
     GET /jobs/:id/variables/:id
-Gets a variable by id
+Gets a variable by id. It is planned that using this method with 'Content-Type: application/javascript' serves a `WebWorker` with appropriate variables set, we'll do this because apparently it's going to be the only option available for multithreading in the browser and doesn't allow the building of workers through function objects, only downloading scripts.
 
 ### Job Results ###
 A `result` object is an arbitrary javascript object associated to a `variable` the result of the computation over this `variable` object.
