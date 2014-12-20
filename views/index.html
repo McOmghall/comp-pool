@@ -1,39 +1,39 @@
 <html>
 <head>
+    <title>
+    	Compool root
+    </title>
+	<meta charset="UTF-8">
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 		var app = angular.module("MyApp", []);
 
 		app.controller("JobsCtrl", function($scope, $http) {
   			$http.get('./jobs/hash-of-hashes').
-    		success(function(data, status, headers, config) {
-      			$scope.job = data;
-      			
-  				$http.get('./jobs/hash-of-hashes/variables/1').
-    			success(function(data, status, headers, config) {
-    				$scope.variable = data;
-    				var funct = $scope.job.execute_function;
-    				funct = new Function("variable, context", funct);
-    				console.log(funct);
-    				$scope.result = funct.call(null, $scope.variable, {})
-    			}).
-	    		error(function(data, status, headers, config) {
-      				alert("error getting variable");
-	    		});
-    		}).
-    		error(function(data, status, headers, config) {
-      			alert("error getting job");
+    		then(function(data) {
+	      		$scope.job = data.data;
+	      			
+	  			return $http.get('./jobs/hash-of-hashes/variables/1')
+    		}).then(function(data) {
+    			$scope.variable = data.data;
+    		}).then(function() {
+    			var funct = $scope.job.execute_function;
+    			funct = new Function("variable, context", funct);
+    			console.log(funct);
+    			$scope.result = funct.call(null, $scope.variable, {}).toString(36);
     		});
 		});
 	</script>
 </head>
-<body ng-app="MyApp">
+<body ng-app="MyApp" style="background-image: url('http://setedous.com/wp-content/uploads/2014/09/Pórtico-Astano-2.jpg')">
 	<div ng-controller="JobsCtrl">
 		<div>
-			Getting job {{job.name}}
+			Getting job {{job.name}}: It {{job.metadata.description.en}}
 		</div>
 		<div>
-			Getting variable {{variable.hash}}
+			Getting variable {{variable | json}}
 		</div>
 		<div>
 			Calculating result {{result}}
