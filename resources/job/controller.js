@@ -1,16 +1,64 @@
-var persistence = require('./persistence');
+var persistence = require('./persistence'), _ = require('underscore'), boom = require('boom');
 
-module.exports.controller = {
-  index : function (request, response) {
-    response(JSON.stringify(persistence.getAll()));
-  },
-  create : function (request, response) {
-    response({message : "you now have two jobs"})
-  },
-  show : function (request, response) {
-    console.log("Show %s", JSON.stringify(request.params));
-    var rval = persistence.getById(request.params.job_id);
-    response(JSON.stringify(rval));
-  }
+module.exports.controller = function controller(root) {
+
+  return [
+      {
+        "method" : 'GET',
+        "path" : root,
+        "config" : {
+          "handler" : function(request, response) {
+            response({});
+          },
+          "plugins" : {
+            "hal" : {
+              "prepare" : function(rep, next) {
+                var objects = persistence.getAll();
+                _.each(objects, function(item) {
+                  rep.link(item.name, root + '/' + item.name);
+                });
+                next();
+              }
+            }
+          }
+        }
+      },
+      {
+        "method" : 'GET',
+        "path" : root + '/{job_id}',
+        "config" : {
+          "handler" : function(request, response) {
+            var job = persistence.getById(request.params.job_id);
+            if (job) {
+              response(job);
+            } else {
+              response(boom.create(404, 'Job not found'));
+            }
+          }
+        }
+      },
+      {
+        "method" : 'GET',
+        "path" : root + '/{job_id}/variables/{variable_id}',
+        "config" : {
+          "handler" : function(request, response) {
+            var variables_mock = [ {
+              id : 1,
+              for_job : "hash-of-hashes",
+              hash : Math.random().toString(36).substr(2)
+            } ];
+            
+            var variable = _.find(variables_mock, function(e) {
+              return e.for_job == request.params.job_id
+                  && e.id == request.params.variable_id;
+            });
+            if (variable) {
+              response(variable);
+            } else {
+              response(boom
+                  .create(404, 'Variable for ' + job_id + ' not found'));
+            }
+          }
+        }
+      } ];
 };
-

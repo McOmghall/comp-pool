@@ -21,11 +21,11 @@
     "pull-model"
   ],
   "dependencies": {
+    "boom": "^2.6.1",
     "halacious": "^3.0.0",
     "hapi": "^8.0.0",
-    "hapi-resourceful-routes": "0.0.6",
     "mschema": "^0.5.5",
-    "node-persist": "0.0.2",
+    "pluralize": "^1.1.0",
     "underscore": "^1.7.0"
   },
   "private": false,

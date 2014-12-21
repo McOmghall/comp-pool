@@ -1,3 +1,1 @@
-module.exports.controller = {
-  index : function(request, response) {}
-}
+module.exports.controller = function controller(root) {}

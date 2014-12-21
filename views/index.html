@@ -1,42 +1,69 @@
 <html>
 <head>
-    <title>
-    	Compool root
-    </title>
-	<meta charset="UTF-8">
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"></script>
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-	<script type="text/javascript">
+<title>Compool root</title>
+<meta charset="UTF-8">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<script type="text/javascript">
 		var app = angular.module("MyApp", []);
 
 		app.controller("JobsCtrl", function($scope, $http) {
+		    $scope.variables = [];
   			$http.get('./jobs/hash-of-hashes').
     		then(function(data) {
 	      		$scope.job = data.data;
 	      			
 	  			return $http.get('./jobs/hash-of-hashes/variables/1')
     		}).then(function(data) {
-    			$scope.variable = data.data;
+    			$scope.variables.push(data.data);
     		}).then(function() {
     			var funct = $scope.job.execute_function;
-    			funct = new Function("variable, context", funct);
-    			console.log(funct);
-    			$scope.result = funct.call(null, $scope.variable, {}).toString(36);
-    		});
+    			$scope.funct = new Function("variable, context", funct);
+    			$scope.variables[$scope.variables.length - 1]
+    				.result = $scope.funct.call(null, $scope.variables[$scope.variables.length - 1], {}).toString(16);
+    		}).then(function() {
+    			for (var i = 0; i < 1000; i++) {
+	    			var result = $scope.variables[$scope.variables.length - 1].result;
+	    			$scope.variables.push({hash: result});
+	    			$scope.variables[$scope.variables.length - 1]
+	    				.result = $scope.funct.call(null, $scope.variables[$scope.variables.length - 1], {}).toString(16);
+	    		}
+    		});;
 		});
 	</script>
+<style>
+.background-astano {
+	background-image:
+		url('http://setedous.com/wp-content/uploads/2014/09/Pórtico-Astano-2.jpg');
+	background-size: 100%;
+}
+
+.title-colored {
+	color: #0B1B42;
+}
+</style>
 </head>
-<body ng-app="MyApp" style="background-image: url('http://setedous.com/wp-content/uploads/2014/09/Pórtico-Astano-2.jpg');background-size:100%;">
-	<div ng-controller="JobsCtrl">
-		<div>
-			Getting job {{job.name}}: It {{job.metadata.description.en}}
+<body class="background-astano">
+	<div class="row container">
+		<h1 class="title-colored">Semprebeta</h1>
+	</div>
+	<div class="panel panel-default col-md-3 col-md-offset-1"
+		ng-app="MyApp" ng-controller="JobsCtrl">
+		<div class="panel-heading">
+			<h3 class="panel-title">Computing jobs</h3>
 		</div>
-		<div>
-			Getting variable {{variable | json}}
-		</div>
-		<div>
-			Calculating result {{result}}
+		<div class="panel-body text-center">
+			<div>{{job.name}}: {{job.metadata.description.en}}</div>
+			<div ng-repeat="variable in variables">
+				<span class="col-md-5"> {{variable.hash}} </span> 
+				<span class="col-md-2"> -> </span> 
+				<span class="col-md-5"> {{variable.result}} </span>
+			</div>
 		</div>
 	</div>
 </body>
