@@ -1,17 +1,38 @@
-var _ = require('underscore')
-  , fs = require('fs');
+var _       = require('underscore')
+, db        = require('nedb')
+, jobs      = new db({filename : './jobs.db'})
+, variables = new db({filename : './variables.db'})
+, results   = new db({filename : './results.db'});
 
-var resource = function() {
+jobs.ensureIndex({ fieldName: 'name' });
+jobs.insert(require('./persisted.json').jobs);
+
+variables.ensureIndex({ fieldName: 'id' });
+variables.insert(require('./persisted.json').variables);
+
+results.ensureIndex({ fieldName: 'id' });
+results.insert(require('./persisted.json').results);
+
+var jobs_dao = function() {
   this.getById = function (id) {
-    console.log("Get by %s", id);
-    var obj = JSON.parse(fs.readFileSync('./resources/job/persisted.json', 'utf8'));
-    return _.find(obj, function (array_obj) {return array_obj.name == id;});
+    return jobs.findOne({name : id});
   };
 
   this.getAll = function () {
-    return JSON.parse(fs.readFileSync('./resources/job/persisted.json', 'utf8'));
+    return jobs.find({});
   };
-}
+};
 
+var variables_dao = function() {
+  this.getByJobAndId = function (job, id) {
+    return variables.find({$and : [{id : id}, {for_job : job}]});
+  };
+};
 
-module.exports = new resource();
+var results_dao = function() {
+  
+};
+
+module.exports.jobs      = new jobs_dao();
+module.exports.variables = new variables_dao();
+module.exports.results   = new results_dao();

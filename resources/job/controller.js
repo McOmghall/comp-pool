@@ -13,7 +13,7 @@ module.exports.controller = function controller(root) {
           "plugins" : {
             "hal" : {
               "prepare" : function(rep, next) {
-                var objects = persistence.getAll();
+                var objects = persistence.jobs.getAll();
                 _.each(objects, function(item) {
                   rep.link(item.name, root + '/' + item.name);
                 });
@@ -28,7 +28,7 @@ module.exports.controller = function controller(root) {
         "path" : root + '/{job_id}',
         "config" : {
           "handler" : function(request, response) {
-            var job = persistence.getById(request.params.job_id);
+            var job = persistence.jobs.getById(request.params.job_id);
             if (job) {
               response(job);
             } else {
@@ -42,21 +42,11 @@ module.exports.controller = function controller(root) {
         "path" : root + '/{job_id}/variables/{variable_id}',
         "config" : {
           "handler" : function(request, response) {
-            var variables_mock = [ {
-              id : 1,
-              for_job : "hash-of-hashes",
-              hash : Math.random().toString(36).substr(2)
-            } ];
-            
-            var variable = _.find(variables_mock, function(e) {
-              return e.for_job == request.params.job_id
-                  && e.id == request.params.variable_id;
-            });
+            var variable = persistence.variables.getByJobAndId(request.params.job_id);
             if (variable) {
               response(variable);
             } else {
-              response(boom
-                  .create(404, 'Variable for ' + job_id + ' not found'));
+              response(boom.create(404, 'Variable not found'));
             }
           }
         }
