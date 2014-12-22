@@ -63,5 +63,21 @@ module.exports.controller = function controller(root) {
             });
           }
         }
+     },
+      {
+        "method" : 'POST',
+        "path" : root + '/{job_id}/variables',
+        "config" : {
+          "handler" : function(request, response) {
+            console.log("Posting variable job %s", request.params.job_id);
+            persistence.variables.postByJob(request.params.job_id, function (variable) {
+              if (variable) {
+                response(variable);
+              } else {
+                response(boom.create(404, 'Variable not found'));
+              }
+            });
+          }
+        }
      } ];
 };
