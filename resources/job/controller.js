@@ -1,4 +1,4 @@
-var persistence = require('./persistence'), _ = require('underscore'), boom = require('boom');
+var persistence = require('./persistence'), _ = require('underscore');
 
 module.exports.controller = function controller(root) {
 
@@ -42,7 +42,7 @@ module.exports.controller = function controller(root) {
               if (job) {
                 response(job);
               } else {
-                response(boom.create(404, 'Job not found'));
+                response().code(404);
               }
             });
           },
@@ -68,7 +68,7 @@ module.exports.controller = function controller(root) {
               if (variable) {
                 response(variable);
               } else {
-                response(boom.create(404, 'Variable not found'));
+                response().code(404);
               }
             });
           }
