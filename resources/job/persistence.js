@@ -1,31 +1,55 @@
 var _       = require('underscore')
 , db        = require('nedb')
-, jobs      = new db({filename : './jobs.db'})
-, variables = new db({filename : './variables.db'})
-, results   = new db({filename : './results.db'});
+, jobs      = new db({filename : './jobs.db', autoload: true })
+, variables = new db({filename : './variables.db', autoload: true })
+, results   = new db({filename : './results.db', autoload: true })
+, persisted = require('./persisted.json');
 
+console.log("Loading jobs %s", JSON.stringify(persisted.jobs, null, 2));
 jobs.ensureIndex({ fieldName: 'name' });
-jobs.insert(require('./persisted.json').jobs);
+jobs.remove({});
+jobs.insert(persisted.jobs, function(err, newResults) {
+  console.log("Loaded %s jobs", newResults.length);
+});
 
+console.log("Loading variables %s", JSON.stringify(persisted.variables, null, 2));
 variables.ensureIndex({ fieldName: 'id' });
-variables.insert(require('./persisted.json').variables);
+variables.remove({});
+variables.insert(persisted.variables, function(err, newResults) {
+  console.log("Loaded %s variables", newResults.length);
+});
 
+console.log("Loading results %s", JSON.stringify(persisted.results, null, 2));
 results.ensureIndex({ fieldName: 'id' });
-results.insert(require('./persisted.json').results);
+results.remove({});
+results.insert(persisted.results, function(err, newResults) {
+  console.log("Loaded %s results", newResults.length);
+});
 
 var jobs_dao = function() {
   this.getById = function (id) {
-    return jobs.findOne({name : id});
+    var result;
+    jobs.findOne({name : id}, function (err, res) {
+      result = res;
+    });
+    return result;
   };
 
-  this.getAll = function () {
-    return jobs.find({});
+  this.getAll = function (callback) {
+    jobs.find({}, function (err, res) {
+      console.log("Got jobs %s", JSON.stringify(res, null, 2));
+      return callback(res);
+    });
   };
 };
 
 var variables_dao = function() {
   this.getByJobAndId = function (job, id) {
-    return variables.find({$and : [{id : id}, {for_job : job}]});
+    var result;
+    variables.find({$and : [{id : id}, {for_job : job}]}, function (err, res) {
+      result = res;
+    });
+    return result;
   };
 };
 

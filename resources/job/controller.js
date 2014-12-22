@@ -13,10 +13,13 @@ module.exports.controller = function controller(root) {
           "plugins" : {
             "hal" : {
               "prepare" : function(rep, next) {
-                var objects = persistence.jobs.getAll();
-                _.each(objects, function(item) {
-                  rep.link(item.name, root + '/' + item.name);
+                var objects = persistence.jobs.getAll(function(result){
+                  _.each(result, function(item) {
+                    console.log("Working on %s", JSON.stringify(item));
+                    rep.link(item.name, root + '/' + item.name);
+                  });
                 });
+                
                 next();
               }
             }
