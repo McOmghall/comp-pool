@@ -27,12 +27,11 @@ results.insert(persisted.results, function(err, newResults) {
 });
 
 var jobs_dao = function() {
-  this.getById = function (id) {
-    var result;
+  this.getById = function (id, callback) {
     jobs.findOne({name : id}, function (err, res) {
-      result = res;
+      console.log("Got job %s", JSON.stringify(res, null, 2));
+      return callback(res);
     });
-    return result;
   };
 
   this.getAll = function (callback) {
@@ -44,12 +43,19 @@ var jobs_dao = function() {
 };
 
 var variables_dao = function() {
-  this.getByJobAndId = function (job, id) {
-    var result;
-    variables.find({$and : [{id : id}, {for_job : job}]}, function (err, res) {
-      result = res;
+  this.getAllByJob = function (job, callback) {
+    variables.find({for_job : job}, function (err, res) {
+      console.log("Got variable %s", JSON.stringify(res, null, 2));
+      return callback(res);
     });
-    return result;
+  };
+
+  this.getByJobAndId = function (job, id, callback) {
+    console.log("Queriying for variable id %s and job name %s", id, job);
+    variables.findOne({"variable_id" : id, "for_job" : job}, function (err, res) {
+      console.log("Got variable %s", JSON.stringify(res, null, 2));
+      return callback(res);
+    });
   };
 };
 

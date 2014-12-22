@@ -16,9 +16,9 @@ module.exports.jobs = [{
 }];
 
 module.exports.variables = [ {
-  id : 1,
+  variable_id : "1",
   for_job : ["hash-of-hashes"],
-  hash : 'iamadefaultstringtohash'
+  hash : 'iamdefault'
 } ];
 
 module.exports.results = [];
