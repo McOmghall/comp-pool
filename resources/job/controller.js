@@ -45,6 +45,16 @@ module.exports.controller = function controller(root) {
                 response(boom.create(404, 'Job not found'));
               }
             });
+          },
+          "plugins" : {
+            "hal" : {
+              "prepare" : function(rep, next) {
+                console.log("Preparing links");
+                rep.link("variables", root + '/' + rep.request.params.job_id + '/variables');
+		
+		next();
+              }
+            }
           }
         }
       },
@@ -65,17 +75,42 @@ module.exports.controller = function controller(root) {
         }
      },
       {
+        "method" : 'GET',
+        "path" : root + '/{job_id}/variables',
+        "config" : {
+          "handler" : function(request, response) {
+            response({});
+          },
+          "plugins" : {
+            "hal" : {
+              "prepare" : function(rep, next) {
+                console.log("Preparing links");
+                persistence.variables.getByJob(rep.request.params.job_id, function(result){
+                  _.each(result, function(item) {
+                    console.log("Working on %s", item._id);
+                    rep.link(item._id, root + '/' + rep.request.params.job_id + '/variables/' + item._id);
+                  });
+
+                  console.log("Handling async stuff correctly");
+                  next();
+                });
+
+                console.log("Returning from links");
+              }
+            }
+          }
+        }
+     },
+      {
         "method" : 'POST',
         "path" : root + '/{job_id}/variables',
         "config" : {
           "handler" : function(request, response) {
             console.log("Posting variable job %s", request.params.job_id);
-            persistence.variables.postByJob(request.params.job_id, function (variable) {
+            persistence.variables.postNewVariable(request.params.job_id, request.payload, function (variable) {
               if (variable) {
-                response(variable);
-              } else {
-                response(boom.create(404, 'Variable not found'));
-              }
+                response().code(201);
+              } 
             });
           }
         }

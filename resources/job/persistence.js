@@ -26,6 +26,9 @@ results.insert(persisted.results, function(err, newResults) {
   console.log("Loaded %s results", newResults.length);
 });
 
+/**
+ * A DAO FOR JOBS
+**/
 var jobs_dao = function() {
   this.getById = function (id, callback) {
     jobs.findOne({name : id}, function (err, res) {
@@ -42,8 +45,19 @@ var jobs_dao = function() {
   };
 };
 
+
+/**
+ * A DAO FOR VARIABLES
+**/
 var variables_dao = function() {
-  this.getAllByJob = function (job, callback) {
+  this.getAll = function (callback) {
+    variables.find({}, function (err, res) {
+      console.log("Got variables %s", JSON.stringify(res, null, 2));
+      return callback(res);
+    });
+  };
+
+  this.getByJob = function (job, callback) {
     variables.find({for_job : job}, function (err, res) {
       console.log("Got variable %s", JSON.stringify(res, null, 2));
       return callback(res);
@@ -52,12 +66,34 @@ var variables_dao = function() {
 
   this.getByJobAndId = function (job, id, callback) {
     console.log("Queriying for variable id %s and job name %s", id, job);
-    variables.findOne({"variable_id" : id, "for_job" : job}, function (err, res) {
+    variables.findOne({_id : id, "for_job" : job}, function (err, res) {
       console.log("Got variable %s", JSON.stringify(res, null, 2));
       return callback(res);
     });
   };
+
+  this.postNewVariable = function (job_id, variable, callback) {
+    console.log("Queriying for variable as %s and job name %s", JSON.stringify(variable), job_id);
+    variables.findOne({"variable" : variable}, function(err, res) {
+      if (res) {
+        variables.update({_id : res._id}, {$addToSet : {for_job : job_id}}, function(err, res) {
+          console.log("Updating with err %s and res %s", err, res);
+          return callback(res);
+        });
+      } else {
+        variables.insert({"for_job" : [job_id], "variable" : variable}, function(err, res) {
+          console.log("Insert with err %s and res %s", err, res);
+          return callback(res);
+        });
+      }
+    });
+  };
 };
+
+
+/**
+ * A DAO FOR RESULTS
+**/
 
 var results_dao = function() {
   
