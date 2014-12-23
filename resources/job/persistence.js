@@ -72,20 +72,24 @@ var variables_dao = function() {
     });
   };
 
+  this.getByJobAndVariable = function (job, variable, callback) {
+    console.log("Queriying for variable type and job name %s", id, job);
+    variables.findOne({for_job : job, variable : variable}, function (err, res) {
+      return callback(res);
+    });
+  };
+
   this.postNewVariable = function (job_id, variable, callback) {
-    console.log("Queriying for variable as %s and job name %s", JSON.stringify(variable), job_id);
-    variables.findOne({"variable" : variable}, function(err, res) {
+    console.log("Querying for variable as %s and job name %s", JSON.stringify(variable), job_id);
+    variables.update({"variable" : variable}, {$addToSet : {for_job : job_id}}, {upsert : true}, function(err, numIfUpdated, res) {
       if (res) {
-        variables.update({_id : res._id}, {$addToSet : {for_job : job_id}}, function(err, res) {
-          console.log("Updating with err %s and res %s", err, res);
-          return callback(res);
-        });
-      } else {
-        variables.insert({"for_job" : [job_id], "variable" : variable}, function(err, res) {
-          console.log("Insert with err %s and res %s", err, res);
-          return callback(res);
-        });
+        return callback(res);
       }
+      
+      // not new insertion, but update
+      variables.findOne({for_job : job_id, variable : variable}, function (err, res) {
+        return callback(res);
+      });
     });
   };
 };

@@ -18,7 +18,7 @@ module.exports.controller = function controller(root) {
                 persistence.jobs.getAll(function(result){
                   _.each(result, function(item) {
                     console.log("Working on %s", item.name);
-                    rep.link(item.name, root + '/' + item.name);
+                    rep.link(item.name, {href : root + '/' + item.name, name : item.name, title : item.metadata.description.en});
                   });
                   
                   console.log("Handling async stuff correctly");
@@ -109,7 +109,7 @@ module.exports.controller = function controller(root) {
             console.log("Posting variable job %s", request.params.job_id);
             persistence.variables.postNewVariable(request.params.job_id, request.payload, function (variable) {
               if (variable) {
-                response().code(201);
+                response().code(201).header('Location', request.path + '/' + variable._id);
               } 
             });
           }
