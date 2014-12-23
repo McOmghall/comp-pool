@@ -1,4 +1,4 @@
-<html>
+<html class="extend-to-bottom">
 <head>
 <title>Compool root</title>
 <meta charset="UTF-8">
@@ -53,9 +53,9 @@
 		    return 'less than a second'; //'just now' //or other string you like;
 		}
 		
-		var app = angular.module("MyApp", []);
+		var app = angular.module("SemprebetaApp", []);
 
-		app.controller("JobsCtrl", function($scope, $http) {
+		app.controller("JobsCtrl", function($scope, $http, $interval) {
 		  $scope.variables = [];
 		  
 		  // HAL (HATEOAS) traversal
@@ -87,30 +87,18 @@
 	  		return $http.get(href);
 		  }).then(function(data) {
 			console.log("GOT A VARIABLE");
-    			$scope.variables.push(data.data.variable);
+    			$scope.variable = data.data.variable;
 		  }).then(function() {
 			console.log("COMPUTING STUFF");
     			var funct = $scope.job.execute_function;
     			$scope.funct = new Function("variable, context", funct);
-    			$scope.variables[$scope.variables.length - 1]
-    				.result = $scope.funct.call(null, $scope.variables[$scope.variables.length - 1], {}).toString(16);
-		  }).then(function() {
-			var starttime=(new Date()).getTime();
-			console.log(starttime);
-			var local_vars = $scope.variables;
-    			for (var i = 0; i < 1000; i++) {
-	    			var result = local_vars[local_vars.length - 1].result;
-	    			local_vars.push({hash: result});
-	    			local_vars[local_vars.length - 1].result = $scope.funct.call(null, local_vars[local_vars.length - 1], {}).toString(16);
-	    		}
-	    		var endtime = (new Date()).getTime();
-	    		console.log(endtime);
-	    		var comptime = endtime - starttime;
-	    		console.log(comptime);
-	    		$scope.time = millisecondsToStr(comptime);
-	    		
-	    		$scope.variables = local_vars;
-    		});;
+			$interval(function() {
+				console.log("Compute a new result");
+    				$scope.result = $scope.funct.call(null, $scope.variable, {}).toString(16);
+				$scope.variable.hash = $scope.result;
+				$scope.result_count = ($scope.result_count || 0) + 1;
+			}, 100);
+		  });
 		});
 	</script>
 <style>
@@ -123,26 +111,24 @@
 .title-colored {
 	color: #0B1B42;
 }
+.no-padding-right {
+   padding-right: 0 !important;
+}
+.extend-to-bottom {
+   height: 100%;
+}
 </style>
 </head>
-<body class="background-astano">
-	<div class="row container">
-		<h1 class="title-colored">Semprebeta</h1>
-	</div>
-	<div class="panel panel-default col-md-3 col-md-offset-1"
-		ng-app="MyApp" ng-controller="JobsCtrl">
-		<div class="panel-heading">
-			<h3 class="panel-title">Computing jobs</h3>
+<body class="background-astano extend-to-bottom">
+	<nav class="navbar navbar-default navbar-collapse" role="navigation">
+		<span class="navbar-brand navbar-left ">Semprebeta {punto} Gal</a>
+	</nav>
+	<nav class="navbar navbar-default navbar-collapse navbar-fixed-bottom" ng-app="SemprebetaApp" ng-controller="JobsCtrl">
+		<div class="list-group-item container">
+			<div class="sidebar-brand col-md-4">You're helping people compute stuff, see:</div>
+			<div class="col-md-4">{{result | json}}</div>
+			<div class="col-md-4" ng-show="result_count != null">Got {{result_count}} results</div>
 		</div>
-		<div ng-show="time != null">Computation lasted {{time}}</div>
-		<div class="panel-body text-center">
-			<div>{{job.name}}: {{job.metadata.description.en}}</div>
-			<div ng-repeat="variable in variables">
-				<span class="col-md-5"> {{variable.hash}} </span> 
-				<span class="col-md-2"> -> </span> 
-				<span class="col-md-5"> {{variable.result}} </span>
-			</div>
-		</div>
-	</div>
+	</nav>
 </body>
 </html>
