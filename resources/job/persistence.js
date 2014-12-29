@@ -32,14 +32,12 @@ results.insert(persisted.results, function(err, newResults) {
 var jobs_dao = function() {
   this.getById = function (id, callback) {
     jobs.findOne({name : id}, function (err, res) {
-      console.log("Got job %s", JSON.stringify(res, null, 2));
       return callback(res);
     });
   };
 
   this.getAll = function (callback) {
     jobs.find({}, function (err, res) {
-      console.log("Got jobs %s", JSON.stringify(res, null, 2));
       return callback(res);
     });
   };
@@ -52,35 +50,29 @@ var jobs_dao = function() {
 var variables_dao = function() {
   this.getAll = function (callback) {
     variables.find({}, function (err, res) {
-      console.log("Got variables %s", JSON.stringify(res, null, 2));
       return callback(res);
     });
   };
 
   this.getByJob = function (job, callback) {
     variables.find({for_job : job}, function (err, res) {
-      console.log("Got variable %s", JSON.stringify(res, null, 2));
       return callback(res);
     });
   };
 
   this.getByJobAndId = function (job, id, callback) {
-    console.log("Queriying for variable id %s and job name %s", id, job);
     variables.findOne({_id : id, "for_job" : job}, function (err, res) {
-      console.log("Got variable %s", JSON.stringify(res, null, 2));
       return callback(res);
     });
   };
 
   this.getByJobAndVariable = function (job, variable, callback) {
-    console.log("Queriying for variable type and job name %s", id, job);
     variables.findOne({for_job : job, variable : variable}, function (err, res) {
       return callback(res);
     });
   };
 
   this.postNewVariable = function (job_id, variable, callback) {
-    console.log("Querying for variable as %s and job name %s", JSON.stringify(variable), job_id);
     variables.update({"variable" : variable}, {$addToSet : {for_job : job_id}}, {upsert : true}, function(err, numIfUpdated, res) {
       if (res) {
         return callback(res);
