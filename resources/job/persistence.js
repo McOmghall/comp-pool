@@ -1,29 +1,45 @@
 var _       = require('underscore')
-, db        = require('nedb')
-, jobs      = new db({filename : './jobs.db', autoload: true })
-, variables = new db({filename : './variables.db', autoload: true })
-, results   = new db({filename : './results.db', autoload: true })
+, mongojs   = require('mongojs')
+, db        = mongojs(process.env.MONGOLAB_URI || "mongodb://localhost/comp-pool")
+, jobs      = db.collection("jobs")
+, variables = db.collection("variables")
+, results   = db.collection("results")
 , persisted = require('./persisted.json');
 
 console.log("Loading jobs %s", JSON.stringify(persisted.jobs, null, 2));
 jobs.ensureIndex({ fieldName: 'name' });
 jobs.remove({});
 jobs.insert(persisted.jobs, function(err, newResults) {
-  console.log("Loaded %s jobs", newResults.length);
+  var count = 0;
+  if (newResults && newResults.length) {
+    count = newResults.length;
+  }
+
+  console.log("Loaded %s jobs", count);
 });
 
 console.log("Loading variables %s", JSON.stringify(persisted.variables, null, 2));
 variables.ensureIndex({ fieldName: 'id' });
 variables.remove({});
 variables.insert(persisted.variables, function(err, newResults) {
-  console.log("Loaded %s variables", newResults.length);
+  var count = 0;
+  if (newResults && newResults.length) {
+    count = newResults.length;
+  }
+
+  console.log("Loaded %s variables", count);
 });
 
 console.log("Loading results %s", JSON.stringify(persisted.results, null, 2));
 results.ensureIndex({ fieldName: 'id' });
 results.remove({});
 results.insert(persisted.results, function(err, newResults) {
-  console.log("Loaded %s results", newResults.length);
+  var count = 0;
+  if (newResults && newResults.length) {
+    count = newResults.length;
+  }
+
+  console.log("Loaded %s results", count);
 });
 
 /**
@@ -61,7 +77,7 @@ var variables_dao = function() {
   };
 
   this.getByJobAndId = function (job, id, callback) {
-    variables.findOne({_id : id, "for_job" : job}, function (err, res) {
+    variables.findOne({_id : mongojs.ObjectId(id), "for_job" : job}, function (err, res) {
       return callback(res);
     });
   };
