@@ -1,174 +1,321 @@
-<html class="extend-to-bottom">
+<!DOCTYPE html>
+<html lang="es">
+
 <head>
-<title>Compool root</title>
-<meta charset="UTF-8">
-<script
-	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
-<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
-<script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-<script type="text/javascript">
-		function pickRandomProperty(obj) {
-		    var result;
-		    var count = 0;
-		    for (var prop in obj)
-			if (Math.random() < 1/++count)
-			  result = prop;
-		    return result;
-		};
-		
-		function millisecondsToStr (milliseconds) {
-		    // TIP: to find current time in milliseconds, use:
-		    // var  current_time_milliseconds = new Date().getTime();
 
-		    function numberEnding (number) {
-			return (number > 1) ? 's' : '';
-		    }
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="SRGago portfolio">
+    <meta name="author" content="SRGago">
 
-		    var temp = Math.floor(milliseconds / 1000);
-		    var years = Math.floor(temp / 31536000);
-		    if (years) {
-			return years + ' year' + numberEnding(years);
-		    }
-		    //TODO: Months! Maybe weeks? 
-		    var days = Math.floor((temp %= 31536000) / 86400);
-		    if (days) {
-			return days + ' day' + numberEnding(days);
-		    }
-		    var hours = Math.floor((temp %= 86400) / 3600);
-		    if (hours) {
-			return hours + ' hour' + numberEnding(hours);
-		    }
-		    var minutes = Math.floor((temp %= 3600) / 60);
-		    if (minutes) {
-			return minutes + ' minute' + numberEnding(minutes);
-		    }
-		    var seconds = temp % 60;
-		    if (seconds) {
-			return seconds + ' second' + numberEnding(seconds);
-		    }
-		    return 'less than a second'; //'just now' //or other string you like;
-		};
-		
-		var selectRandomLink = function(hal_object) {
-			console.log("Getting link from %s", Object.keys(hal_object.data._links).length);
-			var href = hal_object.data._links;
-			delete href.self;
-			href = href[pickRandomProperty(href)].href;
-			
-			console.log("Return link %s", href);
-			
-			return href;
-		};
-		
-		var app = angular.module("SemprebetaApp", []);
+    <title>SRGago</title>
 
-		app.controller("JobsCtrl", function($scope, $http, $interval) {
-		  // GET A RANDOM JOB LINK
-		  $scope.getARandomJobLink = function(data_from_jobs_root) {
-			console.log("GOT JOBS LINKS");
-	  		return $http.get(selectRandomLink(data_from_jobs_root));
-		  };
-		  
-		  // GET A JOB OBJECT
-		  $scope.getAJob = function(data_from_job_link) {
-			console.log("GOT A JOB");
-			$scope.job = data_from_job_link.data;
-			
-			// GET THE VARIABLES LINK
-			var href = data_from_job_link.data._links;
-			href = href['variables'].href;
-			
-			$scope.variablesBaseUri = href;
-			
-	  		return $http.get(href);
-		  };
-		  
-		  $scope.getARandomVariableLink = function(data_from_job_variables_root) {
-			console.log("GOT VARIABLES LINKS");
-	  		return $http.get(selectRandomLink(data_from_job_variables_root));
-		  };
-		  
-		  $scope.setupAndCompute = function(data) {
-			console.log("GOT A VARIABLE");
-    		$scope.variable = data.data.variable;
-    		
-			console.log("GOT A FUNCTION OBJECT");
-			var funct = $scope.job.execute_function;
-			$scope.funct = new Function("variable, context", funct);
-			
-			console.log("Compute a new result");
-			$scope.result = $scope.funct.call(null, $scope.variable, {}).toString(16);
-			$scope.variable.hash = $scope.result;
-			$scope.result_count = ($scope.result_count || 0) + 1;
-			$scope.in_time = ((new Date()).getTime() - $scope.startTime) / 1000;
-			$scope.results_per_second = $scope.result_count / $scope.in_time;
-			
-			$http({
-		      method: 'POST',
-		      url: $scope.variablesBaseUri,
-		      data: $scope.variable,
-		      headers: {'Content-Type': 'application/json'}
-		    });
-		  };
-		  
-		  /////////////////////////////////////////////////////////////////
-		  // DO actual Job
-		  // HAL (HATEOAS) traversal
-		  // It's long, so true apps should avoid doing this by hand and try to use a HAL traversal helper
-		  // from jobs API ROOT
-		  //////////////////////////////////////////////////////////////////
-		  $scope.startTime = (new Date()).getTime();
-		  $scope.results_per_second = 0;
-		  
-		  console.log("IN JOBS ROOT");
-		  $http.get('/jobs')
-		  .then($scope.getARandomJobLink)
-		  .then($scope.getAJob)
-		  .then($scope.getARandomVariableLink)
-		  .then($scope.setupAndCompute);
-		  
-		  
-		  $interval(function (){
-		  	$http.get($scope.variablesBaseUri)
-		  	.then($scope.getARandomVariableLink)
-		  	.then($scope.setupAndCompute);
-		  }, 500);
-		});
-	</script>
-<style>
-.background-astano {
-	background-image: url('http://setedous.com/wp-content/uploads/2014/09/Pórtico-Astano-2.jpg'); 
-	background-position: top right;
-	background-repeat: no-repeat;
-	background-attachment: fixed;
-	background-size: 100%;
-}
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
-.title-colored {
-	color: #0B1B42;
-}
-.no-padding-right {
-   padding-right: 0 !important;
-}
-.extend-to-bottom {
-   height: 100%;
-}
-</style>
+    <!-- Custom CSS -->
+    <link href="css/agency.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <link href='http://fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Righteous' rel='stylesheet' type='text/css'>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+    <script>
+        function pickRandomProperty(obj) {
+            var result;
+            var count = 0;
+            for (var prop in obj)
+                if (Math.random() < 1/++count)
+                    result = prop;
+            return result;
+        };
+
+        function millisecondsToStr (milliseconds) {
+            // TIP: to find current time in milliseconds, use:
+            // var  current_time_milliseconds = new Date().getTime();
+
+            function numberEnding (number) {
+                return (number > 1) ? 's' : '';
+            }
+
+            var temp = Math.floor(milliseconds / 1000);
+            var years = Math.floor(temp / 31536000);
+            if (years) {
+                return years + ' year' + numberEnding(years);
+            }
+            //TODO: Months! Maybe weeks?
+            var days = Math.floor((temp %= 31536000) / 86400);
+            if (days) {
+                return days + ' day' + numberEnding(days);
+            }
+            var hours = Math.floor((temp %= 86400) / 3600);
+            if (hours) {
+                return hours + ' hour' + numberEnding(hours);
+            }
+            var minutes = Math.floor((temp %= 3600) / 60);
+            if (minutes) {
+                return minutes + ' minute' + numberEnding(minutes);
+            }
+            var seconds = temp % 60;
+            if (seconds) {
+                return seconds + ' second' + numberEnding(seconds);
+            }
+            return 'less than a second'; //'just now' //or other string you like;
+        };
+
+        var selectRandomLink = function(hal_object) {
+            console.log("Getting link from %s", Object.keys(hal_object.data._links).length);
+            var href = hal_object.data._links;
+            delete href.self;
+            href = href[pickRandomProperty(href)].href;
+
+            console.log("Return link %s", href);
+
+            return href;
+        };
+
+        var app = angular.module("SemprebetaApp", []);
+
+        app.controller("JobsCtrl", function($scope, $http, $interval) {
+            // GET A RANDOM JOB LINK
+            $scope.getARandomJobLink = function(data_from_jobs_root) {
+                console.log("GOT JOBS LINKS");
+                return $http.get(selectRandomLink(data_from_jobs_root));
+            };
+
+            // GET A JOB OBJECT
+            $scope.getAJob = function(data_from_job_link) {
+                console.log("GOT A JOB");
+                $scope.job = data_from_job_link.data;
+
+                // GET THE VARIABLES LINK
+                var href = data_from_job_link.data._links;
+                href = href['variables'].href;
+
+                $scope.variablesBaseUri = href;
+
+                return $http.get(href);
+            };
+
+            $scope.getARandomVariableLink = function(data_from_job_variables_root) {
+                console.log("GOT VARIABLES LINKS");
+                return $http.get(selectRandomLink(data_from_job_variables_root));
+            };
+
+            $scope.setupAndCompute = function(data) {
+                console.log("GOT A VARIABLE");
+                $scope.variable = data.data.variable;
+
+                console.log("GOT A FUNCTION OBJECT");
+                var funct = $scope.job.execute_function;
+                $scope.funct = new Function("variable, context", funct);
+
+                console.log("Compute a new result");
+                $scope.result = $scope.funct.call(null, $scope.variable, {}).toString(16);
+                $scope.variable.hash = $scope.result;
+                $scope.result_count = ($scope.result_count || 0) + 1;
+                $scope.in_time = ((new Date()).getTime() - $scope.startTime) / 1000;
+                $scope.results_per_second = $scope.result_count / $scope.in_time;
+
+                $http({
+                    method: 'POST',
+                    url: $scope.variablesBaseUri,
+                    data: $scope.variable,
+                    headers: {'Content-Type': 'application/json'}
+                });
+            };
+
+            /////////////////////////////////////////////////////////////////
+            // DO actual Job
+            // HAL (HATEOAS) traversal
+            // It's long, so true apps should avoid doing this by hand and try to use a HAL traversal helper
+            // from jobs API ROOT
+            //////////////////////////////////////////////////////////////////
+            $scope.startTime = (new Date()).getTime();
+            $scope.results_per_second = 0;
+
+            console.log("IN JOBS ROOT");
+            $http.get('/jobs')
+                    .then($scope.getARandomJobLink)
+                    .then($scope.getAJob)
+                    .then($scope.getARandomVariableLink)
+                    .then($scope.setupAndCompute);
+
+
+            $interval(function (){
+                $http.get($scope.variablesBaseUri)
+                        .then($scope.getARandomVariableLink)
+                        .then($scope.setupAndCompute);
+            }, 500);
+        });
+    </script>
+
 </head>
-<body class="background-astano extend-to-bottom">
-	<nav class="navbar navbar-default navbar-collapse" role="navigation">
-		<span class="navbar-brand navbar-left ">semprebeta {punto} gal</span>
-	</nav>
-	<nav class="navbar navbar-default navbar-collapse navbar-fixed-bottom" ng-app="SemprebetaApp" ng-controller="JobsCtrl">
-		<div class="list-group-item container">
-			<div class="sidebar-brand col-md-4">You're helping people using your computer, see:</div>
-			<div class="col-md-4"></div>
-			<div class="col-md-4 text-center" ng-show="result_count != null">Got {{result_count}} results ({{results_per_second | number:2}} r/s in {{in_time | number:3}} seconds)</div>
-		</div>
-	</nav>
+
+<body id="page-top" class="index">
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand page-scroll" href="#page-top">CompPool</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="hidden">
+                    <a href="#page-top"></a>
+                </li>
+                <li>
+                    <a class="page-scroll" href="#services">Blog</a>
+                </li>
+                <li>
+                    <a class="page-scroll" href="#contact">Info</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+
+<!-- Header -->
+<header>
+    <div class="container" ng-app="SemprebetaApp" ng-controller="JobsCtrl">
+        <div class="intro-text">
+            <div class="intro-lead-in">Cosa</div>
+            <div class="intro-heading">Otra cosa</div>
+            <div class="page-scroll btn btn-xl">
+                <span class="col-md-1"></span>
+                <div class="sidebar-brand col-md-4">You're helping people using your computer, see:</div>
+                <span class="col-md-2"></span>
+                <div class="col-md-4 text-center" >Got {{result_count}} results ({{results_per_second | number:2}} r/s in {{in_time | number:3}} seconds)</div>
+                <span class="col-md-1"></span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Services Section -->
+<section id="services">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2 class="section-heading">Lorem ipsum</h2>
+                <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-lg-2">
+                <img src="img/user.jpg" class="img-responsive img-circle" alt="">
+            </div>
+            <span class="col-lg-1"></span>
+            <div class="col-lg-8">
+                    <span class="fa-stack fa-4x">
+                        <i class="fa fa-circle fa-stack-2x text-primary"></i>
+                        <i class="fa fa-shopping-cart fa-stack-1x fa-inverse"></i>
+                    </span>
+                <h4 class="service-heading text-left">Lorem ipsum</h4>
+                <p class="text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque a velit suscipit, finibus metus ornare, accumsan mauris. Nunc faucibus ex quis neque gravida scelerisque. Aliquam quis scelerisque diam. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce sollicitudin, ipsum sed pellentesque iaculis, ante nisi pellentesque est, id laoreet metus ante sit amet enim. Sed cursus dolor eu justo dapibus faucibus. Sed nunc leo, tristique a eros ut, tempor malesuada nisi. Aenean sagittis molestie faucibus. Nunc imperdiet leo ante, ac dapibus mi feugiat vehicula. Nam ut massa odio. Etiam eu pulvinar leo. Cras porta dictum porttitor. Nulla vulputate quis nibh nec bibendum.
+                    <br><br>
+                    Nunc sagittis dapibus ex, sit amet pulvinar dolor dignissim eget. Sed lacinia ex vel velit pellentesque ullamcorper. Phasellus pellentesque eros vitae quam ultrices varius. Praesent cursus, magna fermentum convallis vehicula, tortor augue eleifend sapien, ac malesuada nulla quam at orci. Aenean sed ligula ac augue rhoncus convallis. Cras et dolor arcu. Donec condimentum tortor lobortis justo ullamcorper, eget finibus sem sollicitudin. Aliquam posuere venenatis erat. Morbi ligula risus, tempus vitae erat in, blandit placerat nunc. Donec lectus dui, malesuada vel purus nec, laoreet fringilla diam. Nullam scelerisque quis enim pharetra mollis. Sed condimentum velit sed auctor faucibus. Nunc finibus, mauris id varius varius, mauris libero pulvinar dolor, vel lacinia arcu libero sit amet orci.
+                    <br><br>
+                    Curabitur ut massa at neque gravida malesuada. Nam eget sapien malesuada, fringilla risus sit amet, rhoncus massa. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam cursus, velit in pulvinar pretium, nisl sem interdum neque, sed lacinia ipsum augue sit amet nisi. Nullam ut magna odio. Ut aliquet imperdiet mi id dapibus. Mauris nisi elit, posuere sed tellus nec, porta lobortis nisi. Curabitur ac est sit amet dolor rhoncus tincidunt vitae id ex. Sed a sollicitudin justo. Sed eleifend lorem purus, nec consequat est mollis varius.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h3 class="section-subheading text-muted">Cargar mas</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section id="contact" class="bg-light-gray">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2 class="section-heading">Lorem ipsum</h2>
+                <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 text-center">
+                <p class="large text-muted">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque a velit suscipit, finibus metus ornare, accumsan mauris. Nunc faucibus ex quis neque gravida scelerisque. Aliquam quis scelerisque diam. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce sollicitudin, ipsum sed pellentesque iaculis, ante nisi pellentesque est, id laoreet metus ante sit amet enim. Sed cursus dolor eu justo dapibus faucibus. Sed nunc leo, tristique a eros ut, tempor malesuada nisi. Aenean sagittis molestie faucibus. Nunc imperdiet leo ante, ac dapibus mi feugiat vehicula. Nam ut massa odio. Etiam eu pulvinar leo. Cras porta dictum porttitor. Nulla vulputate quis nibh nec bibendum.
+                    <br><br>
+                    Nunc sagittis dapibus ex, sit amet pulvinar dolor dignissim eget. Sed lacinia ex vel velit pellentesque ullamcorper. Phasellus pellentesque eros vitae quam ultrices varius. Praesent cursus, magna fermentum convallis vehicula, tortor augue eleifend sapien, ac malesuada nulla quam at orci. Aenean sed ligula ac augue rhoncus convallis. Cras et dolor arcu. Donec condimentum tortor lobortis justo ullamcorper, eget finibus sem sollicitudin. Aliquam posuere venenatis erat. Morbi ligula risus, tempus vitae erat in, blandit placerat nunc. Donec lectus dui, malesuada vel purus nec, laoreet fringilla diam. Nullam scelerisque quis enim pharetra mollis. Sed condimentum velit sed auctor faucibus. Nunc finibus, mauris id varius varius, mauris libero pulvinar dolor, vel lacinia arcu libero sit amet orci.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <span class="copyright">Copyright &copy; Your Website 2014</span>
+            </div>
+            <div class="col-md-4">
+                <ul class="list-inline social-buttons">
+                    <li><a href="#"><i class="fa fa-twitter"></i></a>
+                    </li>
+                    <li><a href="#"><i class="fa fa-facebook"></i></a>
+                    </li>
+                    <li><a href="#"><i class="fa fa-linkedin"></i></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <ul class="list-inline quicklinks">
+                    <li><a href="#">Privacy Policy</a>
+                    </li>
+                    <li><a href="#">Terms of Use</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+<!-- Plugin JavaScript -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+<script src="js/classie.js"></script>
+<script src="js/cbpAnimatedHeader.js"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="js/jqBootstrapValidation.js"></script>
+<script src="js/contact_me.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="js/agency.js"></script>
+
 </body>
+
 </html>
