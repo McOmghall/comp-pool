@@ -21,6 +21,7 @@
     "pull-model"
   ],
   "dependencies": {
+    "bunyan": "^1.5.1",
     "halacious": "^3.0.0",
     "hapi": "^8.0.0",
     "hapi-resourceful-routes": "0.0.6",

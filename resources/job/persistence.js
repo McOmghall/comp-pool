@@ -4,43 +4,46 @@ var _       = require('underscore')
 , jobs      = db.collection("jobs")
 , variables = db.collection("variables")
 , results   = db.collection("results")
-, persisted = require('./persisted.json');
+, persisted = require('./persisted.json')
+, logger    = require('../../logger').getDefaultLogger();
 
-console.log("Loading jobs %s", JSON.stringify(persisted.jobs, null, 2));
-jobs.ensureIndex({ fieldName: 'name' });
-jobs.remove({});
-jobs.insert(persisted.jobs, function(err, newResults) {
-  var count = 0;
-  if (newResults && newResults.length) {
-    count = newResults.length;
-  }
+if (process.env.RELOAD_DATABASE == "true") {
+  logger.info("Loading jobs %s", JSON.stringify(persisted.jobs, null, 2));
+  jobs.ensureIndex({ fieldName: 'name' });
+  jobs.remove({});
+  jobs.insert(persisted.jobs, function(err, newResults) {
+    var count = 0;
+    if (newResults && newResults.length) {
+      count = newResults.length;
+    }
 
-  console.log("Loaded %s jobs", count);
-});
+    logger.info("Loaded %s jobs", count);
+  });
 
-console.log("Loading variables %s", JSON.stringify(persisted.variables, null, 2));
-variables.ensureIndex({ fieldName: 'id' });
-variables.remove({});
-variables.insert(persisted.variables, function(err, newResults) {
-  var count = 0;
-  if (newResults && newResults.length) {
-    count = newResults.length;
-  }
+  logger.info("Loading variables %s", JSON.stringify(persisted.variables, null, 2));
+  variables.ensureIndex({ fieldName: 'id' });
+  variables.remove({});
+  variables.insert(persisted.variables, function(err, newResults) {
+    var count = 0;
+    if (newResults && newResults.length) {
+      count = newResults.length;
+    }
 
-  console.log("Loaded %s variables", count);
-});
+    logger.info("Loaded %s variables", count);
+  });
 
-console.log("Loading results %s", JSON.stringify(persisted.results, null, 2));
-results.ensureIndex({ fieldName: 'id' });
-results.remove({});
-results.insert(persisted.results, function(err, newResults) {
-  var count = 0;
-  if (newResults && newResults.length) {
-    count = newResults.length;
-  }
+  logger.info("Loading results %s", JSON.stringify(persisted.results, null, 2));
+  results.ensureIndex({ fieldName: 'id' });
+  results.remove({});
+  results.insert(persisted.results, function(err, newResults) {
+    var count = 0;
+    if (newResults && newResults.length) {
+      count = newResults.length;
+    }
 
-  console.log("Loaded %s results", count);
-});
+    logger.info("Loaded %s results", count);
+  });
+}
 
 /**
  * A DAO FOR JOBS

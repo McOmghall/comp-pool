@@ -1,4 +1,6 @@
-var persistence = require('./persistence'), _ = require('underscore');
+var persistence = require('./persistence'),
+  _ = require('underscore'),
+  logger = require('../../logger').getDefaultLogger();
 
 module.exports.controller = function controller(root) {
 
@@ -8,13 +10,13 @@ module.exports.controller = function controller(root) {
         "path" : root,
         "config" : {
           "handler" : function(request, response) {
-            console.log("Handling get all jobs");
+            logger.info("Handling get all jobs");
             response({});
           },
           "plugins" : {
             "hal" : {
               "prepare" : function(rep, next) {
-                console.log("Preparing links");
+                logger.info("Preparing links");
                 persistence.jobs.getAll(function(result){
                   _.each(result, function(item) {
                     rep.link(item.name, {href : root + '/' + item.name, name : item.name, title : item.metadata.description.en});
@@ -22,7 +24,7 @@ module.exports.controller = function controller(root) {
                   next();
                 });
                 
-                console.log("Returning from links");
+                logger.info("Returning from links");
               }
             }
           }
@@ -33,12 +35,14 @@ module.exports.controller = function controller(root) {
         "path" : root + '/{job_id}',
         "config" : {
           "handler" : function(request, response) {
-            console.log("Getting job %s", request.params.job_id);
+            logger.info("Getting job %s", request.params.job_id);
             persistence.jobs.getById(request.params.job_id, function(job) {
-              console.log("Got job %s", job ? job.name : "NULL");
+              logger.info("Got job %s", job ? job.name : "NULL");
               if (job) {
+                logger.info("Responding job request %s", job);
                 response(job);
               } else {
+                logger.warn("Job not found %s", job);
                 response().code(404);
               }
             });
@@ -46,7 +50,7 @@ module.exports.controller = function controller(root) {
           "plugins" : {
             "hal" : {
               "prepare" : function(rep, next) {
-                console.log("Preparing links");
+                logger.info("Preparing links");
                 rep.link("variables", root + '/' + rep.request.params.job_id + '/variables');
 		
                 next();
@@ -60,9 +64,9 @@ module.exports.controller = function controller(root) {
         "path" : root + '/{job_id}/variables/{variable_id}',
         "config" : {
           "handler" : function(request, response) {
-            console.log("Getting variable %s for job %s", request.params.variable_id, request.params.job_id);
+            logger.info("Getting variable %s for job %s", request.params.variable_id, request.params.job_id);
             persistence.variables.getByJobAndId(request.params.job_id, request.params.variable_id, function (variable) {
-              console.log("Got variable %s", variable ? variable._id.toString() : "NULL");
+              logger.info("Got variable %s", variable ? variable._id.toString() : "NULL");
               if (variable) {
                 response(variable);
               } else {
@@ -77,13 +81,13 @@ module.exports.controller = function controller(root) {
         "path" : root + '/{job_id}/variables',
         "config" : {
           "handler" : function(request, response) {
-            console.log("Handling get all variables for %s", request.params.job_id);
+            logger.info("Handling get all variables for %s", request.params.job_id);
             response({});
           },
           "plugins" : {
             "hal" : {
               "prepare" : function(rep, next) {
-                console.log("Preparing links");
+                logger.info("Preparing links");
                 persistence.variables.getByJob(rep.request.params.job_id, function(result){
                   _.each(result, function(item) {
                     rep.link(item._id.toString(), root + '/' + rep.request.params.job_id + '/variables/' + item._id.toString());
@@ -91,7 +95,7 @@ module.exports.controller = function controller(root) {
                   next();
                 });
 
-                console.log("Returning from links");
+                logger.info("Returning from links");
               }
             }
           }
@@ -102,7 +106,7 @@ module.exports.controller = function controller(root) {
         "path" : root + '/{job_id}/variables',
         "config" : {
           "handler" : function(request, response) {
-            console.log("Posting variable %s job %s", JSON.stringify(request.payload, null, 2), request.params.job_id);
+            logger.info("Posting variable %s job %s", JSON.stringify(request.payload, null, 2), request.params.job_id);
             persistence.variables.postNewVariable(request.params.job_id, request.payload, function (variable) {
               if (variable) {
                 response().code(201).header('Location', request.path + '/' + variable._id.toString());

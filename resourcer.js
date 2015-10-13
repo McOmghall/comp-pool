@@ -1,20 +1,15 @@
 var fs = require('fs')
 , resrc = require('hapi-resourceful-routes')
 , _ = require('underscore')
-, pluralize = require('pluralize');
+, pluralize = require('pluralize')
+, logger = require('./logger').getDefaultLogger(); 
 
-// Logging stopper
-/*
- * var console = { info : function () {} };
- */
-
-// Utility function to add an object to another given it's not null, or empty if
-// specified
 
 var rootify = function(string) {
   return '/' + string;
 };
 
+// Utility function to add an object to another given it's not null, or empty if specified
 var appendSafe = function(object, key, append, empty_objects) {
   if (append) {
     if (!empty_objects && typeof append === 'object'
@@ -32,16 +27,16 @@ var resource_list = {};
 var getAllControllers = function(dir) {
   var controllers = [];
 
-  console.info("Starting resource retrieving on %s", dir);
+  logger.info("Starting resource retrieving on %s", dir);
 
   fs.readdirSync(dir).forEach(function(file) {
     var pathToRoot = dir + '/' + file;
     var stat = fs.statSync(pathToRoot);
 
-    console.info("File: %s", pathToRoot);
+    logger.debug("File: %s", pathToRoot);
 
     if (stat && stat.isDirectory()) {
-      console.log("Requiring " + pathToRoot + '/controller');
+      logger.debug("Requiring " + pathToRoot + '/controller');
       
       var controller_routes = require(pathToRoot + '/controller').controller(rootify(pluralize(file)));
       if (controller_routes != null) {
@@ -49,13 +44,13 @@ var getAllControllers = function(dir) {
       }
     }
 
-    console.info("File: %s explored", pathToRoot);
+    logger.info("File: %s explored", pathToRoot);
   });
 
   var merged = [];
   merged = merged.concat.apply(merged, controllers);
   
-  console.info("Got controllers %s", JSON.stringify(_.map(merged, function(e){return e.method + ' ' + e.path}), null, 2));
+  logger.info("Got controllers %s", _.map(merged, function(e) {return e.method + ' ' + e.path}));
   return merged;
 };
 
@@ -66,13 +61,18 @@ var options_default = {
 var resourcer = function resourcer() {
 
   this.options = options_default;
+  this.resource_list = [];
 
-  this.start = function() {
-    return getAllControllers(this.options.resource_root);
+  this.start = function(route_function) {
+    this.resource_list = getAllControllers(this.options.resource_root);
+
+    logger.info("Got routes %s", this.resource_list);
+
+    return this.resource_list;
   };
 
   this.getResourceInfo = function() {
-    return resource_list;
+    return this.resource_list;
   };
 };
 
