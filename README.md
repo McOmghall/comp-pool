@@ -9,6 +9,8 @@ It has nothing to do with pool cleaning appliances. Yet.
 
     Api Stability: 1 - Experimental
 
+See also [a js client](https://github.com/McOmghall/comp-pool-js-client)
+
 API Design
 -------------
 We use a volunteer pull distributed computation model over a REST API. That means clients can pull (`GET`) `jobs`, job input `variables` and `POST` `results` back to the API. Every resource includes a `self ref` and other semantic `refs` for `HATEOAS` compliance. We offer the following resources:
