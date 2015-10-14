@@ -1,6 +1,6 @@
 {
   "name": "comp-pool",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Rest service for computation jobs",
   "author": "Pedro Montoto García <pmgberm@gmail.com>",
   "scripts": {
@@ -21,14 +21,12 @@
     "pull-model"
   ],
   "dependencies": {
+    "body-parser": "^1.14.1",
     "bunyan": "^1.5.1",
-    "halacious": "^3.0.0",
-    "hapi": "^8.0.0",
-    "hapi-resourceful-routes": "0.0.6",
-    "mongojs": "^0.18.1",
-    "mschema": "^0.5.5",
-    "nedb": "^1.0.1",
-    "pluralize": "^1.1.0",
+    "express": "^4.13.3",
+    "hal": "^0.1.0",
+    "mongoose": "^4.1.11",
+    "restify": "^4.0.3",
     "underscore": "^1.7.0"
   },
   "private": false,

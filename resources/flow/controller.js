@@ -1,1 +1,0 @@
-module.exports.controller = function controller(root) {}
