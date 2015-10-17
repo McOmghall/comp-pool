@@ -3,7 +3,7 @@ var bunyan = require('bunyan')
     name    : 'comp-pool'
   , streams : [{
       type: 'rotating-file'
-    , path: './logs/foo.log'
+    , path: './logs/comp-pool.log'
     , period: '1d'
     , count: 3
   },

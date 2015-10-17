@@ -4,7 +4,8 @@
   "description": "Rest service for computation jobs",
   "author": "Pedro Montoto García <pmgberm@gmail.com>",
   "scripts": {
-    "start": "nodejs index.js"
+    "start": "nodejs server.js",
+    "stop": "pkill --signal SIGINT comp-pool"
   },
   "repository": {
     "type": "git",
@@ -16,7 +17,7 @@
   "keywords": [
     "distributed",
     "collaborative",
-    "mapreduce?",
+    "map-reduce",
     "distributed-computation",
     "pull-model"
   ],
