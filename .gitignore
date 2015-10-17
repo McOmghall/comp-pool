@@ -30,6 +30,7 @@ node_modules
 /Gemfile.lock
 node_modules/
 .project
+.settings
 .tern-project
 *.swp
 *.log
