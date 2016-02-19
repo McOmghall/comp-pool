@@ -3,8 +3,9 @@
   "version": "0.2.0",
   "description": "Rest service for computation jobs",
   "author": "Pedro Montoto García <pmgberm@gmail.com>",
+  "main": "server.js",
   "scripts": {
-    "start": "nodejs server.js",
+    "start": "node server.js start",
     "stop": "pkill --signal SIGINT comp-pool"
   },
   "repository": {
@@ -22,14 +23,9 @@
     "pull-model"
   ],
   "dependencies": {
-    "body-parser": "^1.14.1",
     "bunyan": "^1.5.1",
-    "express": "^4.13.3",
-    "hal": "^0.1.0",
-    "mongoose": "^4.1.11",
-    "restify": "^4.0.3",
-    "underscore": "^1.7.0"
+    "restify": "^4.0.4"
   },
   "private": false,
-  "license": "Apache 2.0"
+  "license": "Apache-2.0"
 }

@@ -1,5 +1,5 @@
-var restful = require('node-restful')
-  , mongoose = restful.mongoose;
-
+module.exports.routes = function(restify) {
+  
+};
 
 
