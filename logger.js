@@ -1,42 +1,48 @@
 var bunyan = require('bunyan')
-, option_defaults = {
-    name    : 'comp-pool'
-  , streams : [{
-      type: 'rotating-file'
-    , path: './logs/comp-pool.log'
-    , period: '1d'
-    , count: 3
+var option_defaults = {
+  name: 'comp-pool',
+  streams: [{
+    type: 'rotating-file',
+    path: './logs/comp-pool.log',
+    period: '1d',
+    count: 3
   },
-  {
-      stream: process.stdout 
-  }]
+    {
+      stream: process.stdout,
+      level: bunyan.DEBUG
+    }]
 }
-, logger = null
-, extend = function extend(destination, source) {
+
+module.exports.getDefaultLogger = createLogger
+
+var logger = null
+
+function extend (destination, source) {
   for (var k in source) {
     if (source.hasOwnProperty(k)) {
-      destination[k] = source[k];
+      destination[k] = source[k]
     }
   }
-  return destination; 
+  return destination
 }
-, createLogger = function createLogger(options) {
-    options = options || {};
 
-    if (!logger) {
-      mkdirSync('./logs');
-      logger = bunyan.createLogger(extend(option_defaults, options));
-    }
+function createLogger (options) {
+  options = options || {}
 
-    return logger;
-};
+  if (!logger) {
+    mkdirSync('./logs')
+    logger = bunyan.createLogger(extend(option_defaults, options))
+  }
 
-var mkdirSync = function (path) {
+  return logger
+}
+
+function mkdirSync (path) {
   try {
-    require('fs').mkdirSync(path);
-  } catch(e) {
-    if ( e.code != 'EEXIST' ) throw e;
+    require('fs').mkdirSync(path)
+  } catch (e) {
+    if (String(e.code) !== 'EEXIST') {
+      throw e
+    }
   }
 }
-
-module.exports.getDefaultLogger = createLogger;

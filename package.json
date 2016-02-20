@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js start",
-    "stop": "pkill --signal SIGINT comp-pool"
+    "stop": "pkill --signal SIGINT comp-pool",
+    "test": "standard"
   },
   "repository": {
     "type": "git",
@@ -24,8 +25,17 @@
   ],
   "dependencies": {
     "bunyan": "^1.5.1",
+    "hal": "^0.1.0",
+    "json-prune": "^1.0.1",
+    "mongojs": "^2.3.0",
     "restify": "^4.0.4"
   },
+  "devDependencies": {
+    "standard": "latest"
+  },
   "private": false,
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">4.x"
+  }
 }
