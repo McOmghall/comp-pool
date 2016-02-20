@@ -11,7 +11,6 @@ var logger = require('../logger').getDefaultLogger().child({
 db.reload = reloadDb
 
 logger.info('DATABASE SCRIPT STARTED: connect to %s', dbURI)
-
 db.on('connect', function () {
   logger.info('DATABASE CONNECTED')
 })
@@ -20,8 +19,11 @@ db.on('error', function () {
   logger.error('DATABASE ERRORED')
 })
 
-if (process.env.RELOAD_DATABASE !== 'false') {
+if (process.env.DB_RELOAD !== 'false') {
+  logger.warn('Reloading all DB records')
   db.reload(require('./persisted.json'), jobs, variables, results)
+} else {
+  logger.info('Not reloading DB')
 }
 
 logger.info('DATABASE EVENTS LOADED')
@@ -32,7 +34,7 @@ var JobsDao = function (jobs) {
   this.db = jobs
 
   this.getAllLinks = function (callback) {
-    logger.debug('Getting all links')
+    logger.debug('Getting all jobs links')
     return this.db.find({}, {
       '_id': 0,
       'name': 1
@@ -40,7 +42,7 @@ var JobsDao = function (jobs) {
   }
 
   this.findByName = function (name, callback) {
-    logger.debug('Finding by name %s', name)
+    logger.debug('Finding job by name %s', name)
     return this.db.findOne({
       'name': name
     }, {
@@ -53,6 +55,7 @@ var VariablesDao = function (variables) {
   this.db = variables
 
   this.findByJobName = function (job, callback, forLinks) {
+    logger.debug('Finding variables by job name %s (only ids? %s)', job, forLinks)
     var projection = (forLinks ? {'_id': 1} : {})
     return this.db.find({
       'for_job': job
@@ -91,7 +94,7 @@ module.exports.variables = new VariablesDao(variables)
 module.exports.results = new ResultsDao(results)
 
 function bulkRenew (collection, data) {
-  logger.info('Loading %s %s', collection, JSON.stringify(data, null, 2))
+  logger.info('Loading %j at %s', data, collection)
   collection.remove({})
   collection.insert(data, function (err, newResults) {
     if (err) {

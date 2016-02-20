@@ -26,7 +26,7 @@ function startup (port) {
         logger.info('Calling hal+json formatter for response object (of type %s) with keys %s', typeof body, JSON.stringify(Object.keys(body)))
         return cb(null, JSON.prune(body, {
           replacer: function replacer (value, def, cycle) {
-            return (cycle ? '\"self-cycle\"' : null)
+            return (cycle ? '"self-cycle"' : null)
           }
         }))
       }

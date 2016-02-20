@@ -6,6 +6,10 @@ function VariablesRoot (jobName, relatedVars, req, restify) {
   logger.info('Creating a variable root for %s %s and %s %s', typeof req.url, req.url, typeof relatedVars, JSON.stringify(relatedVars))
   hal.Resource.call(this, {}, url.resolvePerRequest(req, req.url))
 
+  this.link('api-root', url.resolvePerRequest(req, restify.router.render('api-root')))
+  this.link('jobs-root', url.resolvePerRequest(req, restify.router.render('jobs-root')))
+  this.link('get-job', url.resolvePerRequest(req, restify.router.render('get-job', {'id': jobName})))
+
   var length = relatedVars.length
   for (var i = 0; i < length; i++) {
     var v = relatedVars[i]

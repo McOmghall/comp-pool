@@ -3,6 +3,7 @@ var logger = require('../logger').getDefaultLogger()
 var JobsRoot = require('./jobs-root')
 var Job = require('./job')
 var VariablesRoot = require('./variables-root')
+var Variable = require('./variable')
 
 function addRoutes (restify) {
   restify.get({
@@ -61,7 +62,26 @@ function addRoutes (restify) {
     path: '/jobs/:job/variables/:id'
   }, function getVariable (req, res, next) {
     logger.info('Serving variable: %s |%s| > %s |%s|', typeof req.params.job, req.params.job, typeof req.params.id, req.params.id)
+    persistence.variables.findByJobAndId(req.params.job, req.params.id, function (err, doc) {
+      logger.info('Got err %j doc %j', err, doc)
+      if (err) {
+        return next(err)
+      }
+      logger.debug('Sending object')
+      res.send(200, new Variable(doc, req, restify).toJSON())
 
+      return next()
+    })
+
+    return next()
+  })
+
+  restify.get({
+    name: 'results-root',
+    path: '/jobs/:job/variables/:id/results'
+  }, function getVariable (req, res, next) {
+    logger.info('Serving results root for: %s |%s| > %s |%s|', typeof req.params.job, req.params.job, typeof req.params.id, req.params.id)
+    res.send(200)
     return next()
   })
 }
@@ -69,4 +89,3 @@ function addRoutes (restify) {
 module.exports.addRoutesToServer = function (restify) {
   addRoutes(restify)
 }
-
