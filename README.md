@@ -2,7 +2,7 @@ comp-pool
 =========
 
 [![Build Status](https://travis-ci.org/McOmghall/comp-pool.svg?branch=master)](https://travis-ci.org/McOmghall/comp-pool)
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 This node.js REST service allows distribution of computing jobs (in javascript) to a hive of web clients and will allow users to send their own jobs to the hive once the multiple security issues are adressed. Methods to try, server-side, the integrity and correcteness of job results are also provided.
 
