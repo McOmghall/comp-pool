@@ -12,8 +12,6 @@ It has nothing to do with pool cleaning appliances. Yet.
 
 See also [a js client](https://github.com/McOmghall/comp-pool/tree/master/client) under the `client` directory. To import this client into your project:
 
-##### In node #####
-
     npm install --save comp-pool
 
     // In node you can instantiate the client manually if you don't want to use angular
