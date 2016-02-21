@@ -29,6 +29,7 @@ node_modules
 .lock-wscript
 /Gemfile.lock
 node_modules/
+test/&
 .project
 .settings
 .tern-project
