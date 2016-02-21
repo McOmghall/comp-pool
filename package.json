@@ -32,7 +32,8 @@
     "hal": "^0.1.0",
     "json-prune": "^1.0.1",
     "mongojs": "^2.3.0",
-    "restify": "^4.0.4"
+    "restify": "^4.0.4",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "standard": "latest",
