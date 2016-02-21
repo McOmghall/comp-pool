@@ -1,7 +1,6 @@
-var url = require('./url-helpers')
-var hal = require('hal')
-var jobs = require('./jobs')
+var routeHandlerJobs = require('./route-handler-jobs')
 var logger = require('../logger').getDefaultLogger()
+var ApiRoot = require('./hal-resources').ApiRoot
 
 function routeHandlerAddRoutes (restify) {
   logger.info('Creating routes for root')
@@ -20,11 +19,5 @@ function routeHandlerAddRoutes (restify) {
 
 module.exports.addRoutesToServer = function (restify) {
   routeHandlerAddRoutes(restify)
-  jobs.addRoutesToServer(restify)
+  routeHandlerJobs.addRoutesToServer(restify)
 }
-
-function ApiRoot (req, restify) {
-  hal.Resource.call(this, {}, url.resolvePerRequest(req, req.url))
-  this.link('jobs-root', url.resolvePerRequest(req, restify.router.render('jobs-root')))
-}
-ApiRoot.prototype = Object.create(hal.Resource.prototype)

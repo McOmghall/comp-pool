@@ -1,9 +1,10 @@
 var persistence = require('./persistence')
 var logger = require('../logger').getDefaultLogger()
-var JobsRoot = require('./jobs-root')
-var Job = require('./job')
-var VariablesRoot = require('./variables-root')
-var Variable = require('./variable')
+var halResources = require('./hal-resources')
+var VariablesRoot = halResources.VariablesRoot
+var JobsRoot = halResources.JobsRoot
+var Variable = halResources.Variable
+var Job = halResources.Job
 
 function addRoutes (restify) {
   restify.get({
