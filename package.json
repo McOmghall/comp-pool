@@ -1,13 +1,14 @@
 {
   "name": "comp-pool",
   "version": "0.2.0",
-  "description": "Rest service for computation jobs",
+  "description": "Rest service (and corresponding client) for computation jobs",
   "author": "Pedro Montoto García <pmgberm@gmail.com>",
-  "main": "server.js",
+  "main": "index.js",
+  "browser": "./client/comp-pool-client.js",
   "scripts": {
     "start": "node server.js start",
     "stop": "pkill --signal SIGINT comp-pool",
-    "test": "standard"
+    "test": "standard && grunt test"
   },
   "repository": {
     "type": "git",
@@ -24,18 +25,29 @@
     "pull-model"
   ],
   "dependencies": {
+    "angular": "^1.2.0",
+    "angular-hypermedia": "^0.7.4",
     "bunyan": "^1.5.1",
+    "grunt-cli": "^0.1.13",
     "hal": "^0.1.0",
     "json-prune": "^1.0.1",
     "mongojs": "^2.3.0",
     "restify": "^4.0.4"
   },
   "devDependencies": {
-    "standard": "latest"
+    "standard": "latest",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
+    "grunt-contrib-jasmine": "^1.0.0"
   },
   "private": false,
   "license": "Apache-2.0",
   "engines": {
     "node": ">4.x"
+  },
+  "standard": {
+    "ignore": [
+      "test/**"   
+    ]
   }
 }
