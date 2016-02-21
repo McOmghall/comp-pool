@@ -9,8 +9,6 @@ require('angular-hypermedia')
 require('../vendor/mediatype-parser-browser')
 require('../vendor/linkheader-parser-browser')
 
-var compPoolStats = require('./comp-pool-stats').init()
-
 angular
   .module('CompPoolClient', ['hypermedia'])
   .factory('compPoolClient', ['compPoolRoot', 'ResourceContext', 'HalResource', '$log', '$q', compPoolClient])
@@ -18,9 +16,7 @@ angular
 function compPoolClient (compPoolRoot, ResourceContext, HalResource, $log, $q) {
   $log.debug('Creating compPoolClient for comp-pool at %s', compPoolRoot)
   var resource = new ResourceContext(HalResource).get(compPoolRoot)
-  return $q.when(Object.assign(new ApiRoot($q.when(resource)), {
-    getStats: compPoolStats.getCurrentStats
-  }))
+  return $q.when(Object.assign(new ApiRoot($q.when(resource))))
 }
 
 function ApiRoot (resourcePromise) {
