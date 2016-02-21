@@ -6,8 +6,8 @@ require('angular')
 require('angular-hypermedia')
 // BLOODY HACK: we need to get some variables into the global space for angular-hypermedia to work in the browsers (not require/browserify-ready)
 // // Refer to https://github.com/jcassee/angular-hypermedia/issues/24 for explanation
-require('mediatype-parser')
-require('linkheader-parser')
+require('../vendor/mediatype-parser-browser')
+require('../vendor/linkheader-parser-browser')
 
 var compPoolStats = require('./comp-pool-stats').init()
 

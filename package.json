@@ -47,7 +47,8 @@
   },
   "standard": {
     "ignore": [
-      "test/**"   
+      "test/**",
+      "vendor/**"
     ]
   }
 }
