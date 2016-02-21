@@ -10,7 +10,22 @@ It has nothing to do with pool cleaning appliances. Yet.
 
     Api Stability: 1 - Experimental
 
-See also [a js client](https://github.com/McOmghall/comp-pool-js-client)
+See also [a js client](https://github.com/McOmghall/comp-pool/tree/master/client) under the `client` directory. To import this client into your project:
+
+##### In node #####
+
+    npm install --save comp-pool
+
+    // In node you can instantiate the client manually if you don't want to use angular
+    // compPoolRoot is the url of the comp-pool server (localhost:7070 by default)
+    // ResourceContext and HalResource are provided by the hypermedia npm module
+    // $log and $q are angular services, but they can be substituted easily for similar providers
+    require('comp-pool').client (compPoolRoot, ResourceContext, HalResource, $log, $q)
+
+    // If you use browserify using simply this registers the CompPoolClient angular module
+    require('comp-pool')
+
+     
 
 API Design
 -------------
