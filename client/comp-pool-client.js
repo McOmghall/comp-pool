@@ -1,13 +1,8 @@
-/* eslint-disable no-unused-vars */
-/* global angular, mediaTypeParser, linkHeaderParser */
-/* eslint-enable no-unused-vars */
-
+/* global angular*/
 require('angular')
 require('angular-hypermedia')
-// BLOODY HACK: we need to get some variables into the global space for angular-hypermedia to work in the browsers (not require/browserify-ready)
-// // Refer to https://github.com/jcassee/angular-hypermedia/issues/24 for explanation
-require('../vendor/mediatype-parser-browser')
-require('../vendor/linkheader-parser-browser')
+require('mediatype-parser')
+require('linkheader-parser')
 
 angular
   .module('CompPoolClient', ['hypermedia'])
