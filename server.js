@@ -43,11 +43,6 @@ function startup (port) {
     log: logger
   }))
 
-  server.on('NotFound', function (req, res, err, cb) {
-    res.send('Requested resource ' + req.href())
-    return cb()
-  })
-
   routeHandler.addRoutesToServer(server)
 
   logger.info('Started modules')

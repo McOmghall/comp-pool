@@ -15,7 +15,7 @@ module.exports.jobs = [{
 }]
 
 module.exports.variables = [{
-  for_job: ['hash-of-hashes'],
+  for_jobs: ['hash-of-hashes'],
   variable: {
     hash: 'iamdefault'
   }

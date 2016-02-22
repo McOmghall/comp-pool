@@ -1,27 +1,45 @@
-var mongojs = require('mongojs')
-var dbURI = process.env.MONGOLAB_URI || 'mongodb://localhost/comp-pool'
-var db = mongojs(dbURI)
-var jobs = db.collection('jobs')
-var variables = db.collection('variables')
-var results = db.collection('results')
+var dbURI = process.env.DB_URI || process.env.MONGOLAB_URI || 'mongodb://localhost/comp-pool'
 var logger = require('../logger').getDefaultLogger().child({
   'widget_type': 'persistence'
 })
 
-db.reload = reloadDb
-
 logger.info('DATABASE SCRIPT STARTED: connect to %s', dbURI)
-db.on('connect', function () {
-  logger.info('DATABASE CONNECTED')
-})
 
-db.on('error', function () {
-  logger.error('DATABASE ERRORED')
-})
+// We use a real mongodb just in production
+var db
+var engine
+if (process.env.NODE_ENV === 'production') {
+  logger.warn('Connecting to database at %s', dbURI)
+  engine = require('mongojs')
+  db = engine(dbURI)
+
+  db.on('connect', function () {
+    logger.info('DATABASE CONNECTED')
+  })
+
+  db.on('error', function () {
+    logger.error('DATABASE ERRORED')
+  })
+} else {
+  logger.warn('Connecting to in memory database')
+  engine = require('tingodb')({
+    memStore: true,
+    searchInArray: true
+  })
+  db = new engine.Db(dbURI, {})
+}
+var jobs = db.collection('jobs')
+var variables = db.collection('variables')
+var results = db.collection('results')
+jobs.name = jobs.name || jobs.collectionName
+variables.name = variables.name || variables.collectionName
+results.name = results.name || results.collectionName
+
+logger.info('Database gave correct collections')
 
 if (process.env.DB_RELOAD !== 'false') {
   logger.warn('Reloading all DB records')
-  db.reload(require('./persisted.json'), jobs, variables, results)
+  reloadDb(require('./persisted.json'), jobs, variables, results)
 } else {
   logger.info('Not reloading DB')
 }
@@ -31,19 +49,17 @@ logger.info('DATABASE EVENTS LOADED')
 // All following DAOs only implement non-trivial operations
 // Everything else is delegated to the mongodb driver
 var JobsDao = function (jobs) {
-  this.db = jobs
-
   this.getAllLinks = function (callback) {
     logger.debug('Getting all jobs links')
-    return this.db.find({}, {
+    return jobs.find({}, {
       '_id': 0,
       'name': 1
-    }, callback)
+    }).toArray(callback)
   }
 
   this.findByName = function (name, callback) {
     logger.debug('Finding job by name %s', name)
-    return this.db.findOne({
+    return jobs.findOne({
       'name': name
     }, {
       '_id': 0
@@ -52,14 +68,17 @@ var JobsDao = function (jobs) {
 }
 
 var VariablesDao = function (variables) {
-  this.db = variables
-
   this.findByJobName = function (job, callback, forLinks) {
-    logger.debug('Finding variables by job name %s (only ids? %s)', job, forLinks)
-    var projection = (forLinks ? {'_id': 1} : {})
-    return this.db.find({
-      'for_job': job
-    }, projection, callback)
+    logger.debug('Finding variables by job name %s (only ids? %s)', job,
+      forLinks)
+    var projection = (forLinks ? {
+      '_id': 1
+    } : {
+      '_id': 0
+    })
+    return variables.find({
+      'for_jobs': job
+    }, projection).toArray(callback)
   }
 
   this.findByJobForLinks = function (job, callback) {
@@ -67,46 +86,55 @@ var VariablesDao = function (variables) {
   }
 
   this.findByJobAndId = function (job, id, callback) {
-    return this.db.findOne({
-      '_id': mongojs.ObjectId(id),
-      'for_job': job
+    return variables.findOne({
+      '_id': id,
+      'for_jobs': job
+    }, {
+      '_id': 0
     }, callback)
   }
 
   this.findByJobAndVariable = function (jobId, variable, callback) {
-    return this.db.findOne({
+    return variables.findOne({
       'for_job': jobId,
       'variable': variable
+    }, {
+      '_id': 0
     }, callback)
   }
 }
 
 /**
  * A DAO FOR RESULTS
- **/
+ */
 
-var ResultsDao = function (results) {
-  this.db = results
-}
+var ResultsDao = function (results) {}
 
-module.exports.jobs = new JobsDao(jobs)
-module.exports.variables = new VariablesDao(variables)
-module.exports.results = new ResultsDao(results)
+module.exports.jobs = Object.assign(jobs, new JobsDao(jobs))
+module.exports.variables = Object.assign(variables, new VariablesDao(variables))
+module.exports.results = Object.assign(results, new ResultsDao(results))
+module.exports.db = db
 
 function bulkRenew (collection, data) {
   logger.info('Loading %j at %s', data, collection)
-  collection.remove({})
-  collection.insert(data, function (err, newResults) {
+  collection.remove({}, function (err, res) {
     if (err) {
-      logger.error('Something happened while loading %s: %s', collection, JSON.stringify(err))
+      logger.error('Something happened while cleaning %s: %j', collection.name, err)
       return err
     }
-    var count = 0
-    if (newResults && newResults.length) {
-      count = newResults.length
-    }
+    collection.insert(data, function (err, newResults) {
+      if (err) {
+        logger.error('Something happened while loading %s: %j', collection.name, err)
+        return err
+      }
 
-    logger.info('Loaded %s at %s', count, collection)
+      logger.info('loaded %j', newResults)
+      if (newResults && newResults.length) {
+        logger.info('Loaded %s at %s', newResults.length, collection.name)
+      } else {
+        logger.warn("Didn't load anything")
+      }
+    })
   })
 }
 
@@ -120,14 +148,14 @@ function reloadDb (persisted, jobs, variables, results) {
 
   if (persisted.variables.length > 0) {
     variables.ensureIndex({
-      fieldName: 'id'
+      fieldName: '_id'
     })
     bulkRenew(variables, persisted.variables)
   }
 
   if (persisted.results.length > 0) {
     results.ensureIndex({
-      fieldName: 'id'
+      fieldName: '_id'
     })
     bulkRenew(results, persisted.results)
   }
