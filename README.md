@@ -6,6 +6,8 @@ comp-pool
 
 This node.js REST service allows distribution of computing jobs (in javascript) to a hive of web clients and will allow users to send their own jobs to the hive once the multiple security issues are adressed. Methods to try, server-side, the integrity and correcteness of job results are also provided.
 
+As of now, this is just a proof-of-concept server that allows you to only `GET` jobs, variables and results and `POST` variables and results (see resources below).
+
 It has nothing to do with pool cleaning appliances. Yet.
 
     Api Stability: 1 - Experimental
