@@ -27,6 +27,8 @@
   "dependencies": {
     "angular": "^1.2.0",
     "angular-hypermedia": "^0.7.4",
+    "linkheader-parser": "^0.1.2",
+    "mediatype-parser": "^0.1.2",
     "bunyan": "^1.5.1",
     "grunt-cli": "^0.1.13",
     "hal": "^0.1.0",
