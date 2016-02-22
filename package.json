@@ -1,6 +1,6 @@
 {
   "name": "comp-pool",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Rest service (and corresponding client) for computation jobs",
   "author": "Pedro Montoto García <pmgberm@gmail.com>",
   "main": "index.js",
