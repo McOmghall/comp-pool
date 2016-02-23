@@ -102,13 +102,27 @@ var VariablesDao = function (variables) {
       '_id': 0
     }, callback)
   }
+
+  this.saveVariable = function (jobId, variable, callback) {
+    logger.info('Saving variable %j for job %j', variable, jobId)
+    return variables.findOne({'variable': variable}, function (err, res) {
+      logger.info('Got err %j res %j', err, res)
+      if (!res) {
+        return variables.save({'for_job': [jobId], 'variable': variable}, callback)
+      }
+      return variables.update({'variable': variable}, {'$addToSet': {'for_job': jobId}}, callback)
+    })
+  }
 }
 
 /**
  * A DAO FOR RESULTS
  */
-
-var ResultsDao = function (results) {}
+var ResultsDao = function (results) {
+  this.saveResult = function (jobId, variableId, result, callback) {
+    return results.save({'job': jobId, 'variable': variableId, 'result': result}, callback)
+  }
+}
 
 module.exports.jobs = Object.assign(jobs, new JobsDao(jobs))
 module.exports.variables = Object.assign(variables, new VariablesDao(variables))

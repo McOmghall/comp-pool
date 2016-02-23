@@ -1,6 +1,7 @@
 var persistence = require('./persistence')
 var logger = require('../logger').getDefaultLogger()
 var halResources = require('./hal-resources')
+var url = require('./url-helpers')
 var restify = require('restify')
 var VariablesRoot = halResources.VariablesRoot
 var JobsRoot = halResources.JobsRoot
@@ -72,6 +73,20 @@ function addRoutes (server) {
     })
   })
 
+  server.post('/jobs/:job/variables', function saveVariable (req, res, next) {
+    logger.info('Posting new variable for: %s |%s|', typeof req.params.job, req.params.job)
+
+    persistence.variables.saveVariable(req.params.job, req.body, function (err, doc) {
+      logger.debug('Got err %j doc %j', err, doc)
+      next.ifError(err)
+
+      res.header('Location', url.resolvePerRequest(req, server.router.render('get-variable', {'job': req.params.job, 'variable': doc._id})))
+      res.send(201, doc)
+
+      return next()
+    })
+  })
+
   server.get({
     name: 'get-variable',
     path: '/jobs/:job/variables/:variable'
@@ -94,11 +109,11 @@ function addRoutes (server) {
 
   server.get({
     name: 'results-root',
-    path: '/jobs/:job/variables/:id/results'
+    path: '/jobs/:job/variables/:variable/results'
   }, function getVariable (req, res, next) {
     logger.info('Serving results root for: %s |%s| > %s |%s|', typeof req.params.job, req.params.job, typeof req.params.variable, req.params.variable)
 
-    persistence.variables.findByJobAndId(req.params.job, req.params.id, function (err, doc) {
+    persistence.variables.findByJobAndId(req.params.job, req.params.variable, function (err, doc) {
       logger.debug('Got err %j doc %j', err, doc)
       next.ifError(err)
       if (!doc) {
@@ -108,6 +123,27 @@ function addRoutes (server) {
 
       return next(new restify.errors.BadMethodError('Not implemented yet'))
     })
+  })
+
+  server.post('/jobs/:job/variables/:variable/results', function saveResult (req, res, next) {
+    logger.info('Posting new result for: %s |%s| > %s |%s|', typeof req.params.job, req.params.job, typeof req.params.variable, req.params.variable)
+
+    persistence.results.saveResult(req.params.job, req.params.variable, req.body, function (err, doc) {
+      logger.debug('Got err %j doc %j', err, doc)
+      next.ifError(err)
+
+      res.header('Location', url.resolvePerRequest(req, server.router.render('get-result', {'job': req.params.job, 'variable': req.params.variable, 'result': doc._id})))
+      res.send(201, doc)
+
+      return next()
+    })
+  })
+
+  server.get({
+    name: 'get-result',
+    path: '/jobs/:job/variables/:variable/results/:result'
+  }, function getResult (req, res, next) {
+    return next(new restify.errors.BadMethodError('Not implemented yet'))
   })
 }
 

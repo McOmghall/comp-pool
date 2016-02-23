@@ -18,7 +18,7 @@ function universalLinks (req, restify) {
     this.link('variables-root', url.resolvePerRequest(req, restify.router.render('variables-root', {'job': this.jobId})))
     this.link('get-job', url.resolvePerRequest(req, restify.router.render('get-job', {'job': this.jobId})))
     if (this.variableId) {
-      this.link('results-root', url.resolvePerRequest(req, restify.router.render('results-root', {'job': this.jobId, 'id': this.variableId})))
+      this.link('results-root', url.resolvePerRequest(req, restify.router.render('results-root', {'job': this.jobId, 'variable': this.variableId})))
     }
   }
 }

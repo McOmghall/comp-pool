@@ -38,7 +38,7 @@ function startup (port) {
   // LOAD RESOURCES AND ASSIGN ROUTES AUTOMATICALLY
   server.use(restify.requestLogger())
   server.use(restify.CORS())
-  server.use(restify.bodyParser())
+  server.use(restify.bodyParser({ mapParams: false }))
   server.on('after', restify.auditLogger({
     log: logger
   }))
