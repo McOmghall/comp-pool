@@ -12,6 +12,7 @@ if (process.env.NODE_ENV === 'production') {
   logger.warn('Connecting to database at %s', dbURI)
   engine = require('mongojs')
   db = engine(dbURI)
+  engine.ObjectID = engine.ObjectId
 
   db.on('connect', function () {
     logger.info('DATABASE CONNECTED')
@@ -87,7 +88,7 @@ var VariablesDao = function (variables) {
 
   this.findByJobAndId = function (job, id, callback) {
     return variables.findOne({
-      '_id': id,
+      '_id': engine.ObjectID(id),
       'for_jobs': job
     }, {
       '_id': 0
