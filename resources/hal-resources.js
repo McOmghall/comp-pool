@@ -38,8 +38,8 @@ function JobsRoot (relatedJobs, req, restify) {
   hal.Resource.call(this, {}, url.resolvePerRequest(req, req.url))
   _.each(relatedJobs, function (job, index, relatedJobs) {
     logger.info('Adding link to %s', job.name)
-    var jobUrl = url.resolvePerRequest(req, restify.router.render('get-job', {'job': job.name}))
-    this.link(job.name, jobUrl)
+    var jobUrl = url.resolvePerRequest(req, restify.router.render('get-job', { 'job': job.name }))
+    this.link('jobs', { 'name': job.name, 'profile': 'job', 'href': jobUrl })
   }, this)
   this.universalLinks(req, restify)
 }
@@ -61,7 +61,7 @@ function VariablesRoot (jobName, relatedVars, req, restify) {
   _.each(relatedVars, function (variable, index, relatedVars) {
     logger.info('Adding link to %s', variable._id)
     var variableUrl = url.resolvePerRequest(req, restify.router.render('get-variable', {'job': jobName, 'variable': variable._id}))
-    this.link(variable._id, variableUrl)
+    this.link('variables', { 'profile': 'variable', 'href': variableUrl })
   }, this)
   this.jobId = jobName
   this.universalLinks(req, restify)
@@ -85,7 +85,7 @@ function ResultsRoot (jobName, variableId, relatedResults, req, restify) {
   _.each(relatedResults, function (result, index, relatedVars) {
     logger.info('Adding link to %s', result._id)
     var resultUrl = url.resolvePerRequest(req, restify.router.render('get-result', {'job': jobName, 'variable': variableId, 'result': result._id}))
-    this.link(result._id, resultUrl)
+    this.link('results', { 'profile': 'result', 'href': resultUrl })
   }, this)
   this.jobId = jobName
   this.variableId = req.params.variable

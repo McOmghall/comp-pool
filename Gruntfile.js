@@ -1,4 +1,7 @@
 module.exports = function (grunt) {
+  grunt.config('node-env', grunt.option('env') || process.env.NODE_ENV || 'development')
+  grunt.log.writeln('Node env: ' + grunt.config('node-env'))
+
   grunt.initConfig({
     browserify: {
       test: {

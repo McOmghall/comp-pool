@@ -1,31 +1,36 @@
 /* global angular*/
 require('angular')
-var _ = require('underscore')
+var realizeJobAsFunction = require('./comp-pool-aux').realizeJobAsFunction
+var randomLinkIn = require('./comp-pool-aux').randomLinkIn
 
 angular
   .module('CompPoolClient', [])
-  .factory('compPoolClient', ['compPoolRoot', '$http', '$log', '$q', compPoolClient])
+  .service('ApiRoot', ['JobsRoot', '$http', '$log', ApiRoot])
+  .service('JobsRoot', ['Job', '$http', '$log', JobsRoot])
+  .service('Job', ['VariablesRoot', '$http', '$log', Job])
+  .service('VariablesRoot', ['Variable', '$http', '$log', VariablesRoot])
+  .service('Variable', ['$http', '$log', Variable])
+  .factory('compPoolClient', ['compPoolRoot', 'ApiRoot', '$http', '$log', compPoolClient])
 
-function compPoolClient (compPoolRoot, $http, $log, $q) {
+function compPoolClient (compPoolRoot, ApiRoot, $http, $log) {
   $log.debug('Creating compPoolClient for comp-pool at %s', compPoolRoot)
-  var apiRootManager = new ApiRoot($http, $log)
   var apiRootPromise = $http.get(compPoolRoot).then(function (apiRoot) {
     $log.debug('Got api root %j', apiRoot)
-    return apiRootManager.actual(apiRoot.data)
+    return ApiRoot.actual(apiRoot.data)
   })
-  return Object.assign(apiRootPromise, apiRootManager)
+  return Object.assign(apiRootPromise, ApiRoot)
 }
 
 function Actualizable () {}
 Actualizable.prototype.actual = function (value) {
   this.realizedValue = value
+
   return this
 }
 
 ApiRoot.prototype = Object.create(Actualizable.prototype)
-function ApiRoot ($http, $log) {
+function ApiRoot (JobsRoot, $http, $log) {
   Actualizable.call(this)
-  var jobsRootManager = new JobsRoot($http, $log)
 
   this.getJobsRoot = function () {
     $log.debug('Getting jobs root with %j > %j', this, this.realizedValue)
@@ -38,16 +43,23 @@ function ApiRoot ($http, $log) {
 
     var jobsRootPromise = $http.get(jobsRoot).then(function (jobsRoot) {
       $log.debug('Got jobs root %j', jobsRoot)
-      return jobsRootManager.actual(jobsRoot.data)
+      return JobsRoot.actual(jobsRoot.data)
     })
-    return Object.assign(jobsRootPromise, jobsRootManager)
+    return Object.assign(jobsRootPromise, JobsRoot)
   }
 }
 
 JobsRoot.prototype = Object.create(Actualizable.prototype)
-function JobsRoot ($http, $log) {
+function JobsRoot (Job, $http, $log) {
   Actualizable.call(this)
-  var jobManager = new Job($http, $log)
+
+  this.getJobFromLink = function (jobLink) {
+    var jobPromise = $http.get(jobLink).then(function (job) {
+      $log.debug('Got job %j', job)
+      return Job.actual(realizeJobAsFunction(job.data))
+    })
+    return Object.assign(jobPromise, Job)
+  }
 
   this.getJob = function (jobId) {
     $log.debug('Getting a job by id %s', jobId)
@@ -57,13 +69,7 @@ function JobsRoot ($http, $log) {
       })
     }
 
-    var job = this.realizedValue._links[jobId].href
-
-    var jobPromise = $http.get(job).then(function (job) {
-      $log.debug('Got job %j', job)
-      return jobManager.actual(realizeJobAsFunction(job.data))
-    })
-    return Object.assign(jobPromise, jobManager)
+    return this.getJobFromLink(this.realizedValue._links.jobs[jobId].href)
   }
 
   this.getRandomJob = function () {
@@ -74,18 +80,13 @@ function JobsRoot ($http, $log) {
       })
     }
 
-    var relsArray = _.reject(Object.keys(this.realizedValue._links), rejectAdministrativeLinks)
-    $log.debug('Getting a random job from links %j', relsArray)
-    var randomLink = relsArray[Math.floor(Math.random() * relsArray.length)]
-    $log.debug('Getting a random job: resolved id %s', randomLink)
-    return this.getJob(randomLink)
+    return this.getJobFromLink(randomLinkIn(this.realizedValue._links.jobs).href)
   }
 }
 
 Job.prototype = Object.create(Actualizable.prototype)
-function Job ($http, $log) {
+function Job (VariablesRoot, $http, $log) {
   Actualizable.call(this)
-  var variablesRootManager = new VariablesRoot($http, $log)
 
   this.getVariablesRoot = function () {
     $log.debug('Getting a variables root with %j > %j', this, this.realizedValue)
@@ -97,20 +98,28 @@ function Job ($http, $log) {
 
     var variablesRoot = this.realizedValue._links['variables-root'].href
 
-    variablesRootManager.setJob(this.realizedValue)
+    VariablesRoot.setJob(this.realizedValue)
     var variablesRootPromise = $http.get(variablesRoot).then(function (variablesRoot) {
-      $log.debug('Got variables root %j for job %j', variablesRoot, variablesRootManager.job)
-      return variablesRootManager.actual(variablesRoot.data)
+      $log.debug('Got variables root %j for job %j', variablesRoot, VariablesRoot.job)
+      return VariablesRoot.actual(variablesRoot.data)
     })
-    return Object.assign(variablesRootPromise, variablesRootManager)
+    return Object.assign(variablesRootPromise, VariablesRoot)
   }
 }
 
 VariablesRoot.prototype = Object.create(Actualizable.prototype)
-function VariablesRoot ($http, $log) {
+function VariablesRoot (Variable, $http, $log) {
   Actualizable.call(this)
-  var variableManager = new Variable($http, $log)
   this.job = null
+
+  this.getVariableFromLink = function (variableLink) {
+    Variable.setJob(this.job)
+    var variablePromise = $http.get(variableLink).then(function (variable) {
+      $log.debug('Got variable %j for job %j', variable, Variable.job)
+      return Variable.actual(variable.data)
+    })
+    return Object.assign(variablePromise, Variable)
+  }
 
   this.getVariable = function (variableId) {
     $log.debug('Getting a variable by id %s', variableId)
@@ -120,13 +129,7 @@ function VariablesRoot ($http, $log) {
       })
     }
 
-    var variable = this.realizedValue._links[variableId].href
-    variableManager.setJob(this.job)
-    var variablePromise = $http.get(variable).then(function (variable) {
-      $log.debug('Got variable %j for job %j', variable, variableManager.job)
-      return variableManager.actual(variable.data)
-    })
-    return Object.assign(variablePromise, variableManager)
+    return this.getVariableFromLink(this.realizedValue._links.variables[variableId].href)
   }
 
   this.getRandomVariable = function () {
@@ -137,13 +140,7 @@ function VariablesRoot ($http, $log) {
       })
     }
 
-    var relsArray = _.reject(_.reject(Object.keys(this.realizedValue._links), rejectAdministrativeLinks), function (link) {
-      return link === 'get-job'
-    })
-    $log.debug('Getting a random variable from links %j', relsArray)
-    var randomLink = relsArray[Math.floor(Math.random() * relsArray.length)]
-    $log.debug('Getting a random variable: resolved id %s', randomLink)
-    return this.getVariable(randomLink)
+    return this.getVariableFromLink(randomLinkIn(this.realizedValue._links.variables).href)
   }
 
   this.setJob = function (job) {
@@ -196,17 +193,6 @@ function Variable ($http, $log) {
     this.job = job
     return this
   }
-}
-
-function realizeJobAsFunction (jobObject) {
-  /* eslint-disable no-new-func */
-  jobObject['function'] = new Function('variable', 'context', jobObject.execute_function)
-  /* eslint-enable no-new-func */
-  return jobObject
-}
-
-function rejectAdministrativeLinks (link) {
-  return _.contains(['self', 'api-root', 'jobs-root', 'variables-root', 'results-root'], link)
 }
 
 module.exports.client = compPoolClient
