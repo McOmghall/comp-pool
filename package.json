@@ -37,11 +37,9 @@
     "mongojs": "^2.3.0",
     "restify": "^4.0.4",
     "tingodb": "^0.4.2",
-    "underscore": "^1.8.3"
-  },
-  "devDependencies": {
-    "standard": "latest",
     "grunt": "^0.4.5",
+    "underscore": "^1.8.3",
+    "standard": "latest",
     "grunt-browserify": "^4.0.1",
     "grunt-contrib-jasmine": "^1.0.0"
   },
