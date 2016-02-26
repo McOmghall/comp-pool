@@ -59,7 +59,6 @@ function VariablesRoot (jobName, relatedVars, req, restify) {
   logger.info('Creating a variable root for %s %s and %s %j', typeof req.url, req.url, typeof relatedVars, relatedVars)
   hal.Resource.call(this, {}, url.resolvePerRequest(req, req.url))
   _.each(relatedVars, function (variable, index, relatedVars) {
-    logger.info('Adding link to %s', variable._id)
     var variableUrl = url.resolvePerRequest(req, restify.router.render('get-variable', {'job': jobName, 'variable': variable._id}))
     this.link('variables', { 'profile': 'variable', 'href': variableUrl })
   }, this)
@@ -83,7 +82,6 @@ function ResultsRoot (jobName, variableId, relatedResults, req, restify) {
   logger.info('Creating a variable root for %s %s and %s %j', typeof req.url, req.url, typeof relatedResults, relatedResults)
   hal.Resource.call(this, {}, url.resolvePerRequest(req, req.url))
   _.each(relatedResults, function (result, index, relatedVars) {
-    logger.info('Adding link to %s', result._id)
     var resultUrl = url.resolvePerRequest(req, restify.router.render('get-result', {'job': jobName, 'variable': variableId, 'result': result._id}))
     this.link('results', { 'profile': 'result', 'href': resultUrl })
   }, this)
