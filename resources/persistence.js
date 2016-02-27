@@ -11,8 +11,8 @@ var engine
 if (process.env.NODE_ENV === 'production') {
   logger.warn('Connecting to database at %s', dbURI)
   engine = require('mongojs')
-  db = engine(dbURI)
   engine.ObjectID = engine.ObjectId
+  db = engine(dbURI)
 
   db.on('connect', function () {
     logger.info('DATABASE CONNECTED')
@@ -30,6 +30,7 @@ if (process.env.NODE_ENV === 'production') {
   })
   db = new engine.Db(dbURI, {})
 }
+db.ObjectID = engine.ObjectID || engine.ObjectId
 
 logger.info('Database gave correct collections')
 

@@ -90,7 +90,7 @@ function addRoutes (server) {
     path: '/jobs/:job/variables/:variable'
   }, function getVariable (req, res, next) {
     logger.info('Serving variable: %s |%s| > %s |%s|', typeof req.params.job, req.params.job, typeof req.params.variable, req.params.variable)
-    db.collection('variables').findOne({'for_jobs': req.params.job, '_id': req.params.variable}, function (err, doc) {
+    db.collection('variables').findOne({'for_jobs': req.params.job, '_id': db.ObjectID(req.params.variable)}, function (err, doc) {
       logger.debug('Got err %j doc %j', err, doc)
       next.ifError(err)
       if (!doc) {
