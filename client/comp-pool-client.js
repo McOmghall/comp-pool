@@ -3,6 +3,8 @@ require('angular')
 var realizeJobAsFunction = require('./comp-pool-aux').realizeJobAsFunction
 var randomLinkIn = require('./comp-pool-aux').randomLinkIn
 
+Object.assign = Object.assign || require('object.assign').getPolyfill()
+
 angular
   .module('CompPoolClient', [])
   .service('ApiRoot', ['JobsRoot', '$http', '$log', ApiRoot])

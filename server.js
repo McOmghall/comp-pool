@@ -12,12 +12,27 @@ var logger = require('./logger').getDefaultLogger()
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 process.title = packInf.name
 
+// are we using this as an standalone server or as library
+var serverOnlyViaNpm = process.argv[1] === __filename && process.argv[2] === 'start'
+var server
+
+function turnoff () {
+  logger.info('STOPPING %s:%s app pid=%s', packInf.name, packInf.version, process.pid)
+  server.close()
+  // If the startup was on this script, kill the process
+  if (serverOnlyViaNpm) {
+    process.exit()
+  }
+
+  return server
+}
+
 function startup (port) {
   logger.info('STARTING %s:%s app pid=%s', packInf.name, packInf.version, process.pid)
 
   JSON.prune = require('json-prune')
 
-  var server = restify.createServer({
+  server = restify.createServer({
     name: packInf.name,
     version: packInf.version,
     log: logger,
@@ -50,11 +65,8 @@ function startup (port) {
   server.listen(port || defaultPort, function () {
     logger.info('STARTED %s %s:%s app pid=%s: server %s@%s', process.env.NODE_ENV, packInf.name, packInf.version, process.pid, server.name, server.url)
   })
-}
 
-function turnoff () {
-  logger.info('STOPPING %s:%s app pid=%s', packInf.name, packInf.version, process.pid)
-  process.exit()
+  return server
 }
 
 process.on('SIGTERM', turnoff)
@@ -63,7 +75,7 @@ process.on('SIGHUP', turnoff)
 
 module.exports.startup = startup
 
-if (process.argv[1] === __filename && process.argv[2] === 'start') {
+if (serverOnlyViaNpm) {
   logger.info('STARTING AS PER NPM START %s:%s app pid=%s', packInf.name, packInf.version, process.pid)
   startup()
 }
