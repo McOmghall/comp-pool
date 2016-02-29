@@ -41,18 +41,31 @@ describe('comp-pool-client.test.js', function () {
       })
       angular.mock.inject(function (_$httpBackend_, _compPoolClient_, compPoolRoot) {
         $httpBackend = _$httpBackend_
-        $httpBackend.whenRoute('GET', compPoolRoot).respond(200, '')
+        $httpBackend.whenRoute('GET', compPoolRoot).respond(200, JSON.stringify({_links: {'jobs-root': '/jobs'}}))
         compPoolClient = _compPoolClient_
       })
     })
 
-    afterEach(function () {
-      $httpBackend.flush()
-    })
-
     it('should connect at startup', angular.mock.inject(function ($rootScope) {
-      $rootScope.$apply()
       expect(compPoolClient).toBeDefined()
+    }))
+
+    it('should get the jobs root', angular.mock.inject(function ($rootScope) {
+      var jobsRoot
+      compPoolClient.then(function (apiRoot) {
+        jobsRoot = apiRoot._links['jobs-root']
+      })
+      $httpBackend.flush()
+      expect(jobsRoot).toBe('/jobs')
+    }))
+
+    it('should be able to get jobs root info via promises or object functions', angular.mock.inject(function ($rootScope) {
+      var jobsRoot
+      compPoolClient.then(function (apiRoot) {
+        jobsRoot = apiRoot._links['jobs-root']
+      })
+      $httpBackend.flush()
+      expect(jobsRoot).toBe('/jobs')
     }))
   })
 })

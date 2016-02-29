@@ -18,7 +18,7 @@ function compPoolClient (compPoolRoot, ApiRoot, $http, $log) {
   $log.debug('Creating compPoolClient for comp-pool at %s', compPoolRoot)
   var apiRootPromise = $http.get(compPoolRoot).then(function (apiRoot) {
     $log.debug('Got api root %j', apiRoot)
-    return ApiRoot.actual(apiRoot.data)
+    return Object.assign(ApiRoot.actual(apiRoot.data), apiRoot.data)
   })
   return Object.assign(apiRootPromise, ApiRoot)
 }
