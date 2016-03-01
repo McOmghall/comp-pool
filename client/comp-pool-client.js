@@ -45,7 +45,7 @@ function ApiRoot (JobsRoot, $http, $log) {
 
     var jobsRootPromise = $http.get(jobsRoot).then(function (jobsRoot) {
       $log.debug('Got jobs root %j', jobsRoot)
-      return JobsRoot.actual(jobsRoot.data)
+      return Object.assign(JobsRoot.actual(jobsRoot.data), jobsRoot.data)
     })
     return Object.assign(jobsRootPromise, JobsRoot)
   }
@@ -58,7 +58,7 @@ function JobsRoot (Job, $http, $log) {
   this.getJobFromLink = function (jobLink) {
     var jobPromise = $http.get(jobLink).then(function (job) {
       $log.debug('Got job %j', job)
-      return Job.actual(realizeJobAsFunction(job.data))
+      return Job.actual(job.data)
     })
     return Object.assign(jobPromise, Job)
   }
@@ -103,7 +103,7 @@ function Job (VariablesRoot, $http, $log) {
     VariablesRoot.setJob(this.realizedValue)
     var variablesRootPromise = $http.get(variablesRoot).then(function (variablesRoot) {
       $log.debug('Got variables root %j for job %j', variablesRoot, VariablesRoot.job)
-      return VariablesRoot.actual(variablesRoot.data)
+      return Object.assign(VariablesRoot.actual(variablesRoot.data), variablesRoot.data)
     })
     return Object.assign(variablesRootPromise, VariablesRoot)
   }
@@ -118,7 +118,7 @@ function VariablesRoot (Variable, $http, $log) {
     Variable.setJob(this.job)
     var variablePromise = $http.get(variableLink).then(function (variable) {
       $log.debug('Got variable %j for job %j', variable, Variable.job)
-      return Variable.actual(variable.data)
+      return Object.assign(Variable.actual(variable.data), variable.data)
     })
     return Object.assign(variablePromise, Variable)
   }
@@ -165,6 +165,7 @@ function Variable ($http, $log) {
       })
     }
 
+    realizeJobAsFunction(this.job)
     this.result = this.job['function'](this.realizedValue.variable, {})
     $log.debug('Computed %j', this.result)
     return this
