@@ -47,11 +47,25 @@ describe('comp-pool-client.test.js', function () {
             'jobs-root': {'href': jobsRoot}
           }
         }
-        var jobsRootData = Object.assign({_links: {'jobs': {'example-job': {'href': aJobRoot}}}}, apiRootData)
+        var jobsRootData = apiRootData
+        jobsRootData._links.jobs = {'href': aJobRoot}
+
+        var jobData = jobsRootData
+        jobData = Object.assign(jobData, {
+          'name': 'example-job',
+          'execute_function': 'return (function (variable, context) {return context})(variable, context)',
+          'metadata': {
+            'description': {
+              'en': 'An example job that does nothing'
+            },
+            'owner': 'semprebeta'
+          }
+        })
         $provide.value('compPoolRoot', compPoolRoot)
         $provide.value('serverData', {
           apiRoot: apiRootData,
-          jobsRoot: jobsRootData
+          jobsRoot: jobsRootData,
+          job: jobData
         })
       })
 
@@ -97,7 +111,7 @@ describe('comp-pool-client.test.js', function () {
       expect(jobsRoot1).toEqual(jasmine.objectContaining(serverData.jobsRoot))
     }))
 
-    it('should get the jobs root through promises or function chains, whatever is more confortable to the user', angular.mock.inject(function (serverData) {
+    it('should get the jobs root through promises or function chains', angular.mock.inject(function (serverData) {
       var jobsRoot1
       var jobsRoot2
       compPoolClient.getJobsRoot().then(function (jobsRoot) {
@@ -113,6 +127,50 @@ describe('comp-pool-client.test.js', function () {
       expect(jobsRoot1).toEqual(jobsRoot2)
       expect(jobsRoot1).toEqual(jasmine.objectContaining(serverData.jobsRoot))
       expect(jobsRoot2).toEqual(jasmine.objectContaining(serverData.jobsRoot))
+    }))
+
+    it('should get a job through promises', angular.mock.inject(function (serverData) {
+      var job1
+      compPoolClient.then(function (apiRoot) {
+        return apiRoot.getJobsRoot()
+      }).then(function (jobsRoot) {
+        return jobsRoot.getRandomJob()
+      }).then(function (job) {
+        job1 = job
+      })
+      $httpBackend.flush(3)
+
+      expect(job1).toEqual(jasmine.objectContaining(serverData.job))
+    }))
+
+    it('should get a job through function chains', angular.mock.inject(function (serverData) {
+      var job1
+      compPoolClient.getJobsRoot().getRandomJob().then(function (job) {
+        job1 = job
+      })
+      $httpBackend.flush(3)
+
+      expect(job1).toEqual(jasmine.objectContaining(serverData.job))
+    }))
+
+    it('should get a job through promises or function chains', angular.mock.inject(function (serverData) {
+      var job1
+      var job2
+      compPoolClient.getJobsRoot().getRandomJob().then(function (job) {
+        job1 = job
+      })
+      compPoolClient.then(function (apiRoot) {
+        return apiRoot.getJobsRoot()
+      }).then(function (jobsRoot) {
+        return jobsRoot.getRandomJob()
+      }).then(function (job) {
+        job2 = job
+      })
+      $httpBackend.flush(5)
+
+      expect(job1).toEqual(job2)
+      expect(job1).toEqual(jasmine.objectContaining(serverData.job))
+      expect(job2).toEqual(jasmine.objectContaining(serverData.job))
     }))
   })
 })

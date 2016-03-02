@@ -37,9 +37,9 @@ function ApiRoot (JobsRoot, $http, $log) {
   this.getJobsRoot = function () {
     $log.debug('Getting jobs root with %j > %j', this, this.realizedValue)
     if (this.realizedValue == null) {
-      return this.then(function (apiRoot) {
+      return Object.assign(this.then(function (apiRoot) {
         return apiRoot.getJobsRoot()
-      })
+      }), JobsRoot)
     }
     var jobsRoot = this.realizedValue._links['jobs-root'].href
 
@@ -58,7 +58,7 @@ function JobsRoot (Job, $http, $log) {
   this.getJobFromLink = function (jobLink) {
     var jobPromise = $http.get(jobLink).then(function (job) {
       $log.debug('Got job %j', job)
-      return Job.actual(job.data)
+      return Object.assign(Job.actual(job.data), job.data)
     })
     return Object.assign(jobPromise, Job)
   }
@@ -66,9 +66,9 @@ function JobsRoot (Job, $http, $log) {
   this.getJob = function (jobId) {
     $log.debug('Getting a job by id %s', jobId)
     if (this.realizedValue == null) {
-      return this.then(function (jobRoot) {
+      return Object.assign(this.then(function (jobRoot) {
         return jobRoot.getJob(jobId)
-      })
+      }), Job)
     }
 
     return this.getJobFromLink(this.realizedValue._links.jobs[jobId].href)
@@ -77,9 +77,9 @@ function JobsRoot (Job, $http, $log) {
   this.getRandomJob = function () {
     $log.debug('Getting a random job with %j > %j', this, this.realizedValue)
     if (this.realizedValue == null) {
-      return this.then(function (jobRoot) {
+      return Object.assign(this.then(function (jobRoot) {
         return jobRoot.getRandomJob()
-      })
+      }), Job)
     }
 
     return this.getJobFromLink(randomLinkIn(this.realizedValue._links.jobs).href)
@@ -93,9 +93,9 @@ function Job (VariablesRoot, $http, $log) {
   this.getVariablesRoot = function () {
     $log.debug('Getting a variables root with %j > %j', this, this.realizedValue)
     if (this.realizedValue == null) {
-      return this.then(function (job) {
+      return Object.assign(this.then(function (job) {
         return job.getVariablesRoot()
-      })
+      }), VariablesRoot)
     }
 
     var variablesRoot = this.realizedValue._links['variables-root'].href
@@ -126,9 +126,9 @@ function VariablesRoot (Variable, $http, $log) {
   this.getVariable = function (variableId) {
     $log.debug('Getting a variable by id %s', variableId)
     if (this.realizedValue == null) {
-      return this.then(function (variable) {
+      return Object.assign(this.then(function (variable) {
         return variable.getVariable(variableId)
-      })
+      }), Variable)
     }
 
     return this.getVariableFromLink(this.realizedValue._links.variables[variableId].href)
@@ -137,9 +137,9 @@ function VariablesRoot (Variable, $http, $log) {
   this.getRandomVariable = function () {
     $log.debug('Getting a random variable with %j > %j', this, this.realizedValue)
     if (this.realizedValue == null) {
-      return this.then(function (variableRoot) {
+      return Object.assign(this.then(function (variableRoot) {
         return variableRoot.getRandomVariable()
-      })
+      }), Variable)
     }
 
     return this.getVariableFromLink(randomLinkIn(this.realizedValue._links.variables).href)
@@ -160,9 +160,9 @@ function Variable ($http, $log) {
   this.compute = function () {
     $log.debug('Triying to compute %j > %j > %j', this, this.realizedValue, this.job)
     if (this.realizedValue == null) {
-      return this.then(function (variable) {
+      return Object.assign(this.then(function (variable) {
         return variable.compute()
-      })
+      }), this)
     }
 
     realizeJobAsFunction(this.job)
