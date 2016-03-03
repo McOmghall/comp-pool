@@ -214,5 +214,35 @@ describe('comp-pool-client.test.js', function () {
 
       expect(variable1).toEqual(jasmine.objectContaining(serverData.variable))
     }))
+
+    it('should be able to compute through promises', angular.mock.inject(function (serverData) {
+      var computedVariable
+      compPoolClient.then(function (apiRoot) {
+        return apiRoot.getJobsRoot()
+      }).then(function (jobsRoot) {
+        return jobsRoot.getRandomJob()
+      }).then(function (job) {
+        return job.getVariablesRoot()
+      }).then(function (variablesRoot) {
+        return variablesRoot.getRandomVariable()
+      }).then(function (variable) {
+        return variable.compute()
+      }).then(function (variable) {
+        computedVariable = variable
+      })
+      $httpBackend.flush(5)
+
+      expect(computedVariable.result).toBeDefined()
+    }))
+
+    it('should be able to compute through function chains', angular.mock.inject(function (serverData) {
+      var computedVariable
+      compPoolClient.getJobsRoot().getRandomJob().getVariablesRoot().getRandomVariable().compute().then(function (variable) {
+        computedVariable = variable
+      })
+      $httpBackend.flush(5)
+
+      expect(computedVariable.result).toBeDefined()
+    }))
   })
 })
