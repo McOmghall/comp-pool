@@ -40,6 +40,8 @@ describe('comp-pool-client.test.js', function () {
       var compPoolRoot = 'http://localhost:8080/'
       var jobsRoot = compPoolRoot + 'jobs'
       var aJobRoot = jobsRoot + '/example-job'
+      var variablesRootForaJob = aJobRoot + '/variables'
+      var aVariable = variablesRootForaJob + '/1'
       angular.mock.module(function ($provide) {
         var apiRootData = {
           _links: {
@@ -51,6 +53,7 @@ describe('comp-pool-client.test.js', function () {
         jobsRootData._links.jobs = {'href': aJobRoot}
 
         var jobData = jobsRootData
+        jobData._links['variables-root'] = {'href': variablesRootForaJob}
         jobData = Object.assign(jobData, {
           'name': 'example-job',
           'execute_function': 'return (function (variable, context) {return context})(variable, context)',
@@ -61,11 +64,19 @@ describe('comp-pool-client.test.js', function () {
             'owner': 'semprebeta'
           }
         })
+        var variablesRootData = jobsRootData
+        variablesRootData._links['variables-root'] = {'href': variablesRootForaJob}
+        variablesRootData._links.variables = {'href': aVariable}
+        var aVariableData = variablesRootData
+        aVariableData.for_jobs = ['example-job']
+        aVariableData.variable = {'example-field-name': 'example-value'}
         $provide.value('compPoolRoot', compPoolRoot)
         $provide.value('serverData', {
           apiRoot: apiRootData,
           jobsRoot: jobsRootData,
-          job: jobData
+          job: jobData,
+          variablesRoot: variablesRootData,
+          variable: aVariableData
         })
       })
 
@@ -73,6 +84,9 @@ describe('comp-pool-client.test.js', function () {
         $httpBackend = _$httpBackend_
         $httpBackend.whenRoute('GET', compPoolRoot).respond(200, JSON.stringify(serverData.apiRoot))
         $httpBackend.whenRoute('GET', jobsRoot).respond(200, JSON.stringify(serverData.jobsRoot))
+        $httpBackend.whenRoute('GET', aJobRoot).respond(200, JSON.stringify(serverData.job))
+        $httpBackend.whenRoute('GET', variablesRootForaJob).respond(200, JSON.stringify(serverData.variablesRoot))
+        $httpBackend.whenRoute('GET', aVariable).respond(200, JSON.stringify(serverData.variable))
         compPoolClient = _compPoolClient_
       })
     })
@@ -171,6 +185,34 @@ describe('comp-pool-client.test.js', function () {
       expect(job1).toEqual(job2)
       expect(job1).toEqual(jasmine.objectContaining(serverData.job))
       expect(job2).toEqual(jasmine.objectContaining(serverData.job))
+    }))
+
+    it('should get a variable through promises', angular.mock.inject(function (serverData) {
+      var variable1
+      compPoolClient.then(function (apiRoot) {
+        return apiRoot.getJobsRoot()
+      }).then(function (jobsRoot) {
+        return jobsRoot.getRandomJob()
+      }).then(function (job) {
+        return job.getVariablesRoot()
+      }).then(function (variablesRoot) {
+        return variablesRoot.getRandomVariable()
+      }).then(function (variable) {
+        variable1 = variable
+      })
+      $httpBackend.flush(5)
+
+      expect(variable1).toEqual(jasmine.objectContaining(serverData.variable))
+    }))
+
+    it('should get a variable through function chains', angular.mock.inject(function (serverData) {
+      var variable1
+      compPoolClient.getJobsRoot().getRandomJob().getVariablesRoot().getRandomVariable().then(function (variable) {
+        variable1 = variable
+      })
+      $httpBackend.flush(5)
+
+      expect(variable1).toEqual(jasmine.objectContaining(serverData.variable))
     }))
   })
 })
