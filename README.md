@@ -172,7 +172,7 @@ Example Job Schedulers
 #### Plans ####
 
 * Use it to explore multithreading in javascript and multithreaded designs
-* WebCL support
+* Performance: WebCL support, client as WebAssembly (wasb), native client with on-board js interpreter
 
 #### History ####
 
