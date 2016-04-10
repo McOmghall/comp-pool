@@ -1,4 +1,4 @@
-comp-pool
+comp-pool <a href="http://semprebeta.gal"><img src="https://raw.githubusercontent.com/McOmghall/semprebeta.gal/master/src/imgs/icon.png" width="20" alt="Un proxecto semprebeta"></a>
 =========
 
 [![Build Status](https://travis-ci.org/McOmghall/comp-pool.svg?branch=master)](https://travis-ci.org/McOmghall/comp-pool)
