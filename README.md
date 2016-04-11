@@ -173,6 +173,7 @@ Example Job Schedulers
 
 * Use it to explore multithreading in javascript and multithreaded designs
 * Performance: WebCL support, client as WebAssembly (wasb), native client with on-board js interpreter
+* Integrate with the Matrix.org network
 
 #### History ####
 
