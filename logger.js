@@ -1,6 +1,6 @@
 var bunyan = require('bunyan')
 var _ = require('underscore')
-var option_defaults = {
+var optionDefaults = {
   name: 'comp-pool',
   streams: [{
     type: 'rotating-file',
@@ -29,7 +29,7 @@ function createLogger (options) {
         throw e
       }
     }
-    logger = bunyan.createLogger(_.extendOwn(option_defaults, options))
+    logger = bunyan.createLogger(_.extendOwn(optionDefaults, options))
   }
 
   return logger
