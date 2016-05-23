@@ -1,8 +1,10 @@
-comp-pool
+comp-pool <a href="http://semprebeta.gal"><img src="https://raw.githubusercontent.com/McOmghall/semprebeta.gal/master/src/imgs/icon.png" width="20" alt="Un proxecto semprebeta" title="Un proxecto semprebeta"></a>
 =========
 
 [![Build Status](https://travis-ci.org/McOmghall/comp-pool.svg?branch=master)](https://travis-ci.org/McOmghall/comp-pool)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+
+Distributed computation for everyone. No installs, just with a web browser. Share and compute collaboratively with peers.
 
 This node.js REST service allows distribution of computing jobs (in javascript) to a hive of web clients and will allow users to send their own jobs to the hive once the multiple security issues are adressed. Methods to try, server-side, the integrity and correcteness of job results are also provided.
 
@@ -170,7 +172,8 @@ Example Job Schedulers
 #### Plans ####
 
 * Use it to explore multithreading in javascript and multithreaded designs
-* WebCL support
+* Performance: WebCL support, client as WebAssembly (wasb), native client with on-board js interpreter, Service Workers
+* Integrate with the Matrix.org network
 
 #### History ####
 
